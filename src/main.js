@@ -5,8 +5,8 @@
 
 let config = {
     type: Phaser.CANVAS,
-    width: 1920,
-    height: 1080,
+    width: window.innerWidth,
+    height: window.innerHeight,
     scene: [Menu],
 
 };
