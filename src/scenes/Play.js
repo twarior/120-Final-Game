@@ -87,24 +87,18 @@ class Play extends Phaser.Scene {
         if (this.moveKeys.right.isDown){
             this.player.setAccelerationX(800);
         }
-        if (this.moveKeys.up.isUp){
+        if (this.moveKeys.up.isUp && this.moveKeys.down.isUp){
             this.player.setAccelerationY(0);
         }
-        if (this.moveKeys.down.isUp){
-            this.player.setAccelerationY(0);
-        }
-        if (this.moveKeys.left.isUp){
-            this.player.setAccelerationX(0);
-        }
-        if (this.moveKeys.right.isUp){
+        if (this.moveKeys.left.isUp && this.moveKeys.right.isUp){
             this.player.setAccelerationX(0);
         }
         
         //camera tracks player 
         var avgX = ((this.player.x + this.reticle.x)/2)-400;
         var avgY = ((this.player.y + this.reticle.y)/2)-300;
-        this.cameras.main.scrollX = avgX;
-        this.cameras.main.scrollY = avgY;
+        this.cameras.main.scrollX = this.player.x;
+        this.cameras.main.scrollY = this.player.y;
 
         //makes reticle move with player
         this.reticle.body.velocity.x = this.player.body.velocity.x;
