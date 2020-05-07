@@ -44,7 +44,7 @@ class Menu extends Phaser.Scene {
     update() {
         //if the player presses the up arrow the game will start
         if (Phaser.Input.Keyboard.JustDown(keyUP)) {
-            //this.scene.start("playScene");
+            this.scene.start("playScene");
         }
         else if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
             //this.scene.start("Credits.js");   
