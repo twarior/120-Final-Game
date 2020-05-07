@@ -26,12 +26,11 @@ class Menu extends Phaser.Scene {
         let centerX = game.config.width/2;
         let centerY = game.config.height/2 ;
         let textSpacer = 64;
-        var menuScreen = this.add.image(0, 0, 'menuScreen').setOrigin(0, 0);
         //this.add.text(centerX, centerY - textSpacer, 'FIRE TIRES', menuConfig).setOrigin(.5);
-        this.add.text(centerX, centerY + textSpacer, 'Use  ⇠⇢  arrows to move', menuConfig).setOrigin(.5);
-        this.add.text(centerX, centerY + textSpacer*2, 'Survive for as long as you can', menuConfig)
+        this.add.text(centerX, centerY - textSpacer, 'Use  ⇠⇢  arrows to move', menuConfig).setOrigin(.5);
+        this.add.text(centerX, centerY, 'Survive for as long as you can', menuConfig)
             .setOrigin(.5);
-        this.add.text(centerX, centerY + textSpacer*3, 'Press ⇡ to Start or ⇣ for Credits', menuConfig)
+        this.add.text(centerX, centerY + textSpacer, 'Press ⇡ to Start or ⇣ for Credits', menuConfig)
             .setOrigin(.5);
 
         // define keys
