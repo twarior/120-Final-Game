@@ -11,6 +11,7 @@ class Menu extends Phaser.Scene {
     create() {
         //menu display
         let menuConfig = {
+            fontFamily: 'Sunflower',
             fontSize: '28px',
             color: '#004FFF',
             align: 'center',
@@ -47,7 +48,7 @@ class Menu extends Phaser.Scene {
             this.scene.start("playScene");
         }
         else if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
-            this.scene.start("creditsScene");    
+            this.sound.play('sfx_button');   
         }
     }
 }
