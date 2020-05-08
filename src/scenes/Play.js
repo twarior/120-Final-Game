@@ -8,6 +8,8 @@ class Play extends Phaser.Scene {
             {frameWidth: 44, frameHeight:38});
         this.load.image('target', './assets/sprites/reticle.png');
         this.load.image('background', './assets/backgrounds/background.png');
+        this.load.image('normalWall', './assets/sprites/normWall.png');
+        this.load.image('distortedWall', './assets/sprites/distWall.png');
     }
 
     create(){
@@ -22,6 +24,25 @@ class Play extends Phaser.Scene {
         //set image/sprite properties
         this.player.setCollideWorldBounds(true).setDrag(500, 500).setScale(1, 1).setOrigin(0, 0);
         this.reticle.setCollideWorldBounds(true).setScale(1, 1).setOrigin(0, 0);
+
+        //add wall groups
+        this.normWalls = this.physics.add.staticGroup();
+        this.distWalls = this.physics.add.staticGroup();
+
+        //create the walls
+        for(let i = 69; i < game.config.width; i+=250){
+            //create walls at i, i with a doubled scaled
+            //we need to refresh the body so the physics body is the same as the image, and not the origional size
+            this.normWalls.create(i, i, 'normalWall').setScale(2).refreshBody();
+            this.distWalls.create(i*2, i*2, 'distortedWall').setScale(2).refreshBody();
+        }
+        
+        //add collision with walls
+        this.normalWallToggle = this.physics.add.collider(this.player, this.normWalls);
+        this.distortedWallToggle = this.physics.add.collider(this.player, this.distWalls);
+        //hopefully this will make the distorted wall invisable and no have collision
+        this.distWalls.setAlpha(0);
+        this.distortedWallToggle.active = false;
 
         //set camera zoom
         this.cameras.main.zoom = 1;
@@ -97,8 +118,8 @@ class Play extends Phaser.Scene {
         //camera tracks player 
         var avgX = ((this.player.x + this.reticle.x)/2)-400;
         var avgY = ((this.player.y + this.reticle.y)/2)-300;
-        this.cameras.main.scrollX = this.player.x;
-        this.cameras.main.scrollY = this.player.y;
+        this.cameras.main.scrollX = this.player.x - game.config.width/2;
+        this.cameras.main.scrollY = this.player.y - game.config.height/2;
 
         //makes reticle move with player
         this.reticle.body.velocity.x = this.player.body.velocity.x;
@@ -109,6 +130,10 @@ class Play extends Phaser.Scene {
 
         // Constrain position of reticle
         this.constrainReticle(this.reticle, this.player, 200);
+
+        if (Phaser.Input.Keyboard.JustDown(this.moveKeys.space)) {
+            this.phase();
+        }
         
     }
 
@@ -156,6 +181,21 @@ class Play extends Phaser.Scene {
 
             reticle.x = player.x + (reticle.x-player.x)/scale;
             reticle.y = player.y + (reticle.y-player.y)/scale;
+        }
+    }
+
+    phase() {
+        if(this.normalWallToggle.active == true){
+            this.normalWallToggle.active = false;
+            this.normWalls.setAlpha(0);
+            this.distortedWallToggle.active = true;
+            this.distWalls.setAlpha(1);
+        }
+        else {
+            this.normalWallToggle.active = true;
+            this.normWalls.setAlpha(1);
+            this.distortedWallToggle.active = false;
+            this.distWalls.setAlpha(0);
         }
     }
 }
