@@ -4,14 +4,16 @@ class Play extends Phaser.Scene {
     }
     preload(){
         //load assets here
-        this.load.spritesheet('playerSprite', './assets/sprites/smileyGun.png', 
-            {frameWidth: 44, frameHeight:38});
+        this.load.image('playerSprite', './assets/sprites/smileyGun.png');
+        this.load.image('enemySprite', './assets/enemies/badSmiley.png');
         this.load.image('target', './assets/sprites/reticle.png');
         this.load.image('background', './assets/backgrounds/background.png');
         this.load.image('normalWall', './assets/sprites/normWall.png');
         this.load.image('distortedWall', './assets/sprites/distWall.png');
         this.load.image('bullet', 'assets/sprites/bullet.png');
     }
+
+//=====================================================================================================
 
     create(){
         //create world bounds
@@ -26,17 +28,26 @@ class Play extends Phaser.Scene {
         this.player.setCollideWorldBounds(true).setDrag(500, 500).setScale(1, 1).setOrigin(.5, .5);
         this.reticle.setCollideWorldBounds(true).setScale(1, 1).setOrigin(.5, .5);
 
+        //add bulllet groups for both player and enemies
+        this.playerBullets = this.physics.add.group({classType: Bullet, runChildUpdate: true});
+        this.enemyBullets = this.physics.add.group({classType: Bullet, runChildUpdate: true});
+
+        //enemies
+        this.enemies = [];
+        for(let i = 0; i < 10; i += 1){
+            this.enemies[i] = this.physics.add.sprite(100, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
+            this.enemies[i].health = 3;
+        }
+
         //add wall groups
         this.normWalls = this.physics.add.staticGroup();
         this.distWalls = this.physics.add.staticGroup();
 
-        //add bulllet group
-        this.playerBullets = this.physics.add.group({classType: Bullet,runChildUpdate: true});
-
         //create the walls
         for(let i = 69; i < game.config.width; i+=250){
             //create walls at i, i with a doubled scaled
-            //we need to refresh the body so the physics body is the same as the image, and not the origional size
+            //we need to refresh the body so the physics body is the same as the image, 
+            //and not the origional size
             this.normWalls.create(i, i, 'normalWall').setScale(2).refreshBody();
             this.distWalls.create(i*2, i*2, 'distortedWall').setScale(2).refreshBody();
         }
@@ -101,7 +112,9 @@ class Play extends Phaser.Scene {
         }, this);
     }
 
-    update(){
+//=======================================================================================================
+
+    update(time, delta){
         //player movement
         if (this.moveKeys.up.isDown){
             this.player.setAccelerationY(-800);
@@ -123,17 +136,18 @@ class Play extends Phaser.Scene {
         }
         
         //camera tracks player 
-        var avgX = ((this.player.x + this.reticle.x)/2)-400;
-        var avgY = ((this.player.y + this.reticle.y)/2)-300;
-        this.cameras.main.scrollX = this.player.x - game.config.width/2;
-        this.cameras.main.scrollY = this.player.y - game.config.height/2;
+        // var avgX = ((this.player.x + this.reticle.x)/2)-400;
+        // var avgY = ((this.player.y + this.reticle.y)/2)-300;
+        // this.cameras.main.scrollX = this.player.x - game.config.width/2;
+        // this.cameras.main.scrollY = this.player.y - game.config.height/2;
+        this.cameras.main.startFollow(this.player);
 
         //makes reticle move with player
         this.reticle.body.velocity.x = this.player.body.velocity.x;
         this.reticle.body.velocity.y = this.player.body.velocity.y;
 
         // Constrain velocity of player
-        this.constrainVelocity(this.player, 500);
+        this.constrainVelocity(this.player, 250);
 
         // Constrain position of reticle
         this.constrainReticle(this.reticle, this.player, 200);
@@ -147,7 +161,19 @@ class Play extends Phaser.Scene {
             this.phase();
         }
         
+        //make enemies rotate
+        for(let i = 0; i < this.enemies.length; i++){
+            let enemy = this.enemies[i]; 
+            enemy.rotation = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+            this.enemyFire(enemy, this.player, time, this);
+        }
+
+        //make enemy fire
+        //for(let i 0 )
+        //this.enemyFire(this.enemies, this.player, time, this);
     }
+
+//=======================================================================================================
 
     constrainVelocity(sprite, maxVelocity)
     {
@@ -211,5 +237,40 @@ class Play extends Phaser.Scene {
         }
     }
 
+    enemyHitCallback(enemyHit, bulletHit) {
+        //reduce health of enemy
+        if (bulletHit.active === true && enemyHit.active === true) {
+            enemyHit.health -= 1;
+            console.log('enemy at: ' + enemyHit.x + ', ' + enemyHit.y + ' has ' + enemyHit.health + 
+                ' remaining');
+            
+            //kill enemy if health <= 0
+            if(enemyHit.health <= 0) {
+                enemyHit.setActive(false).setVisible(false);
+            }
+
+            //destroy bullet
+            bulletHit.setActive(false).setVisible(false);
+        }
+    }
     
+    enemyFire(enemy, player, time, gameObject) {
+        if (enemy.active === false){
+            return;
+        }
+
+        //if ((time - enemy.lastFired) > 1000){
+            enemy.lastFired = time;
+
+            // Get bullet from bullets group
+            var bullet = this.enemyBullets.get().setActive(true).setVisible(true);
+
+            if (bullet){
+                bullet.fire(enemy, player);
+                console.log("in enemy fire in if bullet")
+                // Add collider between bullet and player
+                //gameObject.physics.add.collider(player, bullet, playerHitCallback);
+            }
+        //}
+    }
 }
