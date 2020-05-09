@@ -10,6 +10,7 @@ class Play extends Phaser.Scene {
         this.load.image('background', './assets/backgrounds/background.png');
         this.load.image('normalWall', './assets/sprites/normWall.png');
         this.load.image('distortedWall', './assets/sprites/distWall.png');
+        this.load.image('bullet', 'assets/sprites/bullet.png');
     }
 
     create(){
@@ -22,12 +23,15 @@ class Play extends Phaser.Scene {
         this.reticle = this.physics.add.sprite(game.config.width/2, game.config.height/2, 'target');
 
         //set image/sprite properties
-        this.player.setCollideWorldBounds(true).setDrag(500, 500).setScale(1, 1).setOrigin(0, 0);
-        this.reticle.setCollideWorldBounds(true).setScale(1, 1).setOrigin(0, 0);
+        this.player.setCollideWorldBounds(true).setDrag(500, 500).setScale(1, 1).setOrigin(.5, .5);
+        this.reticle.setCollideWorldBounds(true).setScale(1, 1).setOrigin(.5, .5);
 
         //add wall groups
         this.normWalls = this.physics.add.staticGroup();
         this.distWalls = this.physics.add.staticGroup();
+
+        //add bulllet group
+        this.playerBullets = this.physics.add.group({classType: Bullet, maxSize : 10,runChildUpdate: true});
 
         //create the walls
         for(let i = 69; i < game.config.width; i+=250){
@@ -45,7 +49,7 @@ class Play extends Phaser.Scene {
         this.distortedWallToggle.active = false;
 
         //set camera zoom
-        this.cameras.main.zoom = 1;
+        this.cameras.main.zoom = 2;
 
         //create object for input with wasd keys
         this.moveKeys = this.input.keyboard.addKeys({
@@ -79,18 +83,21 @@ class Play extends Phaser.Scene {
                 // Only works when camera follows player
                 var distX = this.reticle.x - this.player.x;
                 var distY = this.reticle.y - this.player.y;
-
-                // Ensures reticle cannot be moved offscreen
-                // if (distX > game.config.width)
-                //     this.reticle.x = this.player.x+800;
-                // else if (distX < -800)
-                //     this.reticle.x = this.player.x-800;
-
-                // if (distY > 600)
-                //     this.reticle.y = this.player.y+600;
-                // else if (distY < -600)
-                //     this.reticle.y = this.player.y-600;
             } 
+        }, this);
+
+        this.input.on('pointerdown', function (pointer, time, lastFired) {
+            if (this.player.active === false)
+                return;
+    
+            // Get bullet from bullets group
+            var bullet = this.playerBullets.get().setActive(true).setVisible(true);
+    
+            if (bullet)
+            {
+                bullet.fire(this.player, this.reticle);
+                //this.physics.add.collider(enemy, bullet, enemyHitCallback);
+            }
         }, this);
     }
 
@@ -131,6 +138,11 @@ class Play extends Phaser.Scene {
         // Constrain position of reticle
         this.constrainReticle(this.reticle, this.player, 200);
 
+        //points the player at the reticle
+        this.player.rotation = Phaser.Math.Angle.Between(this.player.x, this.player.y, 
+            this.reticle.x, this.reticle.y)
+
+        //phase the player if they press space
         if (Phaser.Input.Keyboard.JustDown(this.moveKeys.space)) {
             this.phase();
         }
@@ -198,4 +210,6 @@ class Play extends Phaser.Scene {
             this.distWalls.setAlpha(0);
         }
     }
+
+    
 }

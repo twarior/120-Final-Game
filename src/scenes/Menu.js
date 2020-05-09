@@ -27,10 +27,10 @@ class Menu extends Phaser.Scene {
         let centerY = game.config.height/2 ;
         let textSpacer = 64;
         //this.add.text(centerX, centerY - textSpacer, 'FIRE TIRES', menuConfig).setOrigin(.5);
-        this.add.text(centerX, centerY - textSpacer, 'Use  ⇠⇢  arrows to move', menuConfig).setOrigin(.5);
-        this.add.text(centerX, centerY, 'Survive for as long as you can', menuConfig)
+        this.add.text(centerX, centerY - textSpacer, 'Use  W, A, S, and D to move', menuConfig).setOrigin(.5);
+        this.add.text(centerX, centerY, 'Press SPACE to Phase', menuConfig)
             .setOrigin(.5);
-        this.add.text(centerX, centerY + textSpacer, 'Press ⇡ to Start or ⇣ for Credits', menuConfig)
+        this.add.text(centerX, centerY + textSpacer, 'Press SPACE to Start', menuConfig)
             .setOrigin(.5);
 
         // define keys
@@ -38,12 +38,12 @@ class Menu extends Phaser.Scene {
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP); 
         keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
- 
+        keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     }
     
     update() {
         //if the player presses the up arrow the game will start
-        if (Phaser.Input.Keyboard.JustDown(keyUP)) {
+        if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
             this.scene.start("playScene");
         }
         else if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
