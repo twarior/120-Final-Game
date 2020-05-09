@@ -31,7 +31,7 @@ class Play extends Phaser.Scene {
         this.distWalls = this.physics.add.staticGroup();
 
         //add bulllet group
-        this.playerBullets = this.physics.add.group({classType: Bullet, maxSize : 10,runChildUpdate: true});
+        this.playerBullets = this.physics.add.group({classType: Bullet,runChildUpdate: true});
 
         //create the walls
         for(let i = 69; i < game.config.width; i+=250){
