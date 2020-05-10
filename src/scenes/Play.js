@@ -19,6 +19,11 @@ class Play extends Phaser.Scene {
         //create world bounds
         this.physics.world.setBounds(0, 0, 1920, 1080);
 
+        //timer
+        this.timer = this.time.addEvent({
+            loop: true
+        });
+
         //add background, player, and reticle sprites
         var background = this.add.image(0, 0, 'background').setOrigin(0, 0);
         this.player = this.physics.add.sprite(game.config.width/2, game.config.height/2, 'playerSprite');
@@ -27,6 +32,7 @@ class Play extends Phaser.Scene {
         //set image/sprite properties
         this.player.setCollideWorldBounds(true).setDrag(500, 500).setScale(1, 1).setOrigin(.5, .5);
         this.reticle.setCollideWorldBounds(true).setScale(1, 1).setOrigin(.5, .5);
+        this.player.health = 10;
 
         //add bulllet groups for both player and enemies
         this.playerBullets = this.physics.add.group({classType: Bullet, runChildUpdate: true});
@@ -37,6 +43,7 @@ class Play extends Phaser.Scene {
         for(let i = 0; i < 10; i += 1){
             this.enemies[i] = this.physics.add.sprite(100, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
             this.enemies[i].health = 3;
+            this.enemies[i].lastFired = i*500;
         }
 
         //add wall groups
@@ -107,7 +114,15 @@ class Play extends Phaser.Scene {
             if (bullet)
             {
                 bullet.fire(this.player, this.reticle);
-                //this.physics.add.collider(enemy, bullet, enemyHitCallback);
+                for(let i = 0; i < this.enemies.length; i ++){
+                    this.physics.add.collider(this.enemies[i], bullet, this.enemyHitCallback);
+                } 
+                if(this.normalWallToggle.active == true) {
+                    this.physics.add.collider(bullet, this.normWalls, this.wallHitCallback);
+                }
+                else {
+                    this.physics.add.collider(bullet, this.distWalls, this.wallHitCallback);
+                }
             }
         }, this);
     }
@@ -165,12 +180,8 @@ class Play extends Phaser.Scene {
         for(let i = 0; i < this.enemies.length; i++){
             let enemy = this.enemies[i]; 
             enemy.rotation = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
-            this.enemyFire(enemy, this.player, time, this);
+            this.enemyFire(enemy, this.player, this);
         }
-
-        //make enemy fire
-        //for(let i 0 )
-        //this.enemyFire(this.enemies, this.player, time, this);
     }
 
 //=======================================================================================================
@@ -241,8 +252,8 @@ class Play extends Phaser.Scene {
         //reduce health of enemy
         if (bulletHit.active === true && enemyHit.active === true) {
             enemyHit.health -= 1;
-            console.log('enemy at: ' + enemyHit.x + ', ' + enemyHit.y + ' has ' + enemyHit.health + 
-                ' remaining');
+            //console.log('enemy at: ' + enemyHit.x + ', ' + enemyHit.y + ' has ' + enemyHit.health + 
+                //' remaining');
             
             //kill enemy if health <= 0
             if(enemyHit.health <= 0) {
@@ -254,23 +265,47 @@ class Play extends Phaser.Scene {
         }
     }
     
-    enemyFire(enemy, player, time, gameObject) {
+    playerHitCallback(playerHit, bulletHit) {
+        // Reduce health of player
+        if (bulletHit.active === true && playerHit.active === true) {
+            playerHit.health = playerHit.health - 1;
+            console.log("Player hp: ", playerHit.health);
+        }
+        if (playerHit.health <=0 ){
+            // this.add.text(playerHit.x, playerHit.y, 'GAME OVER', menuConfig).setOrigin(.5);
+            console.log('GAME OVER');
+        }
+        bulletHit.setActive(false).setVisible(false);
+    }
+
+    wallHitCallback(bulletHit, wallHit) {
+        if(wallHit.active === true && bulletHit.active === true){
+            bulletHit.setActive(false).setVisible(false);
+        }
+    }
+
+    enemyFire(enemy, player, gameObject) {
         if (enemy.active === false){
             return;
         }
-
-        //if ((time - enemy.lastFired) > 1000){
-            enemy.lastFired = time;
-
+        if ((this.timer.getElapsed() - enemy.lastFired + 50) > 3000){
+            enemy.lastFired = this.timer.getElapsed();
             // Get bullet from bullets group
             var bullet = this.enemyBullets.get().setActive(true).setVisible(true);
 
             if (bullet){
                 bullet.fire(enemy, player);
-                console.log("in enemy fire in if bullet")
+                
                 // Add collider between bullet and player
-                //gameObject.physics.add.collider(player, bullet, playerHitCallback);
+                gameObject.physics.add.collider(player, bullet, this.playerHitCallback);
+                //collider between walls depending on whats active
+                if(this.normalWallToggle.active == true) {
+                    gameObject.physics.add.collider(bullet, this.normWalls, this.wallHitCallback);
+                }
+                else {
+                    gameObject.physics.add.collider(bullet, this.distWalls, this.wallHitCallback);
+                }
             }
-        //}
+        }
     }
 }
