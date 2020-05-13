@@ -302,6 +302,7 @@ class Level1 extends Phaser.Scene {
             
             //kill enemy if health <= 0
             if(enemyHit.health <= 0) {
+                enemyHit.y -= 4000;
                 enemyHit.destroy();
             }
 
