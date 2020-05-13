@@ -270,12 +270,6 @@ class Level1 extends Phaser.Scene {
                 this.distEnemies[i].setActive(false);
                 this.distEnemies[i].setVisible(false);
             }
-        }
-        for(let i = 0; i < this.distEnemies.length; i++){
-            if(this.distEnemies[i].active == true){
-                this.distEnemies[i].setActive(false);
-                this.distEnemies[i].setVisible(false);
-            }
             else{
                 this.distEnemies[i].setActive(true);
                 this.distEnemies[i].setVisible(true);
