@@ -44,6 +44,21 @@ class Play extends Phaser.Scene {
             this.enemies[i] = this.physics.add.sprite(100, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
             this.enemies[i].health = 3;
             this.enemies[i].lastFired = i*500;
+            this.enemies[i].dead = false;
+        }
+
+        //dist enemies
+        this.distEnemies = [];
+        for(let i = 0; i  < 10; i += 1) {
+            this.distEnemies[i] = this.physics.add.sprite(900, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
+            this.distEnemies[i].health = 3;
+            this.distEnemies[i].dead = false;
+            this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback);
+        }
+        //make the distorted enemies inactive and invisible at start
+        for(let i = 0; i < this.distEnemies.length; i++){
+            this.distEnemies[i].setActive(false);
+            this.distEnemies[i].setVisible(false);
         }
 
         //add wall groups
@@ -62,7 +77,7 @@ class Play extends Phaser.Scene {
         //add collision with walls
         this.normalWallToggle = this.physics.add.collider(this.player, this.normWalls);
         this.distortedWallToggle = this.physics.add.collider(this.player, this.distWalls);
-        //hopefully this will make the distorted wall invisable and no have collision
+        //make the distorted wall invisable and no have collision on start
         this.distWalls.setAlpha(0);
         this.distortedWallToggle.active = false;
 
@@ -116,6 +131,9 @@ class Play extends Phaser.Scene {
                 bullet.fire(this.player, this.reticle);
                 for(let i = 0; i < this.enemies.length; i ++){
                     this.physics.add.collider(this.enemies[i], bullet, this.enemyHitCallback);
+                } 
+                for(let i = 0; i < this.distEnemies.length; i ++){
+                    this.physics.add.collider(this.distEnemies[i], bullet, this.enemyHitCallback);
                 } 
                 if(this.normalWallToggle.active == true) {
                     this.physics.add.collider(bullet, this.normWalls, this.wallHitCallback);
@@ -176,16 +194,21 @@ class Play extends Phaser.Scene {
             this.phase();
         }
         
-        //make enemies rotate
+        //make normal enemies rotate and fire
         for(let i = 0; i < this.enemies.length; i++){
             let enemy = this.enemies[i]; 
             enemy.rotation = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
             this.enemyFire(enemy, this.player, this);
         }
+        //make distorted enemies run toward player
+        for(let i = 0; i < this.distEnemies.length; i++){
+            this.enemyMove(this.distEnemies[i], this.player, 200);
+        }
     }
 
 //=======================================================================================================
 
+    //makes sure the player can't zoom too fast
     constrainVelocity(sprite, maxVelocity)
     {
         if (!sprite || !sprite.body)
@@ -206,6 +229,7 @@ class Play extends Phaser.Scene {
         }
     }
 
+    //constrain the reticle to a circel around the player so it cant go off screen or somewhere unexpected
     constrainReticle(reticle, player, radius) {
         var distX = reticle.x - player.x; // X distance between player & reticle
         var distY = reticle.y - player.y; // Y distance between player & reticle
@@ -233,6 +257,8 @@ class Play extends Phaser.Scene {
         }
     }
 
+    //main mechanic of the game. "phase" the player by setting the objects around them to inactive and 
+    //invisible. might need to change when tilemaps are introduced
     phase() {
         if(this.normalWallToggle.active == true){
             this.normalWallToggle.active = false;
@@ -246,8 +272,33 @@ class Play extends Phaser.Scene {
             this.distortedWallToggle.active = false;
             this.distWalls.setAlpha(0);
         }
+        for(let i = 0; i < this.distEnemies.length; i++){
+            if(this.distEnemies[i].dead == false) {
+                if(this.distEnemies[i].active == true){
+                    this.distEnemies[i].setActive(false);
+                    this.distEnemies[i].setVisible(false);
+                }
+                else{
+                    this.distEnemies[i].setActive(true);
+                    this.distEnemies[i].setVisible(true);
+                }
+            }
+        }
+        for(let i = 0; i < this.enemies.length; i++){
+            if(this.enemies[i].dead == false) {
+                if(this.enemies[i].active == true){
+                    this.enemies[i].setActive(false);
+                    this.enemies[i].setVisible(false);
+                }
+                else{
+                    this.enemies[i].setActive(true);
+                    this.enemies[i].setVisible(true);
+                }
+            }
+        }
     }
 
+    //physics callback for when a player created bullet hits an enemy
     enemyHitCallback(enemyHit, bulletHit) {
         //reduce health of enemy
         if (bulletHit.active === true && enemyHit.active === true) {
@@ -258,6 +309,7 @@ class Play extends Phaser.Scene {
             //kill enemy if health <= 0
             if(enemyHit.health <= 0) {
                 enemyHit.setActive(false).setVisible(false);
+                enemyHit.dead = true;
             }
 
             //destroy bullet
@@ -265,6 +317,7 @@ class Play extends Phaser.Scene {
         }
     }
     
+    //physics callback for when an enemy bullet hits the player
     playerHitCallback(playerHit, bulletHit) {
         // Reduce health of player
         if (bulletHit.active === true && playerHit.active === true) {
@@ -278,16 +331,31 @@ class Play extends Phaser.Scene {
         bulletHit.setActive(false).setVisible(false);
     }
 
+    //physics callback for when an enemy punches the player
+    playerHitMeleeCallback(playerHit, enemyHit) {
+        if(playerHit.active === true && enemyHit.active === true){
+            playerHit.health -= 1;
+            console.log("Player hp: ", playerHit.health);
+        }
+        if (playerHit.health <=0 ){
+            // this.add.text(playerHit.x, playerHit.y, 'GAME OVER', menuConfig).setOrigin(.5);
+            console.log('GAME OVER');
+        }
+    }
+
+    //phyics callback for when any type of bullet hits a wall
+    //this should be basically the same as an enemy bullet collision, but the enemy doesnt disapear. 
     wallHitCallback(bulletHit, wallHit) {
         if(wallHit.active === true && bulletHit.active === true){
             bulletHit.setActive(false).setVisible(false);
         }
     }
 
+    //makes the enemy fire toward the player with a cooldown of about 3 seconds
     enemyFire(enemy, player, gameObject) {
         if (enemy.active === false){
             return;
-        }
+        }//                                 chnage this number here for a different cooldown
         if ((this.timer.getElapsed() - enemy.lastFired + 50) > 3000){
             enemy.lastFired = this.timer.getElapsed();
             // Get bullet from bullets group
@@ -307,5 +375,16 @@ class Play extends Phaser.Scene {
                 }
             }
         }
+    }
+
+    //move the enemy toward the player, 
+    enemyMove(enemy, player, maxVelocity) {
+        if(enemy.active === false){
+            return;
+        }
+        let angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+        let velocityX = Math.cos(angle)*maxVelocity;
+        let velocityY = Math.sin(angle)*maxVelocity;
+        enemy.setVelocity(velocityX, velocityY);
     }
 }
