@@ -10,7 +10,8 @@ class Play extends Phaser.Scene {
         this.load.image('background', './assets/backgrounds/background.png');
         this.load.image('normalWall', './assets/sprites/normWall.png');
         this.load.image('distortedWall', './assets/sprites/distWall.png');
-        this.load.image('bullet', 'assets/sprites/bullet.png');
+        this.load.image('bullet', './assets/sprites/bullet.png');
+        this.load.image('health', './assets/sprites/healthSprite.png');
     }
 
 //=====================================================================================================
@@ -53,6 +54,7 @@ class Play extends Phaser.Scene {
             this.distEnemies[i] = this.physics.add.sprite(900, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
             this.distEnemies[i].health = 3;
             this.distEnemies[i].dead = false;
+            this.distEnemies[i].dropped = false;
             this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback);
         }
         //make the distorted enemies inactive and invisible at start
@@ -80,6 +82,13 @@ class Play extends Phaser.Scene {
         //make the distorted wall invisable and no have collision on start
         this.distWalls.setAlpha(0);
         this.distortedWallToggle.active = false;
+
+        //make health drop group
+        this.healthDrops = [];
+        for(let i = 0; i < 25; i++){
+            this.healthDrops[i] = this.physics.add.sprite(-1000, -1000, 'health')
+            this.healthDrops[i].setVisible(false).setActive(false);
+        }
 
         //set camera zoom
         this.cameras.main.zoom = 2;
@@ -203,6 +212,9 @@ class Play extends Phaser.Scene {
         //make distorted enemies run toward player
         for(let i = 0; i < this.distEnemies.length; i++){
             this.enemyMove(this.distEnemies[i], this.player, 200);
+            if(this.distEnemies[i].dead == true && this.distEnemies[i].dropped == false){
+                this.spawnHealth(this.distEnemies[i]);
+            }
         }
     }
 
@@ -298,8 +310,25 @@ class Play extends Phaser.Scene {
         }
     }
 
+    spawnHealth(enemyHit){
+        let randomNum = Math.floor(Math.random()*100);
+        if(randomNum >= 50){
+            for(let i = 0; i < this.healthDrops.length; i++){
+                if(this.healthDrops[i].active == false){
+                    let health = this.healthDrops[i];
+                    health.x = enemyHit.x;
+                    health.y = enemyHit.y;
+                    health.setActive(true).setVisible(true);
+                    this.physics.add.collider(health, this.player, this.healthHitCallback);
+                    enemyHit.dropped = true;
+                    break;
+                }
+            }
+        }
+    }
+
     //physics callback for when a player created bullet hits an enemy
-    enemyHitCallback(enemyHit, bulletHit) {
+    enemyHitCallback(enemyHit, bulletHit, healthDrops) {
         //reduce health of enemy
         if (bulletHit.active === true && enemyHit.active === true) {
             enemyHit.health -= 1;
@@ -308,6 +337,7 @@ class Play extends Phaser.Scene {
             
             //kill enemy if health <= 0
             if(enemyHit.health <= 0) {
+                enemyHit.setVelocity(0,0);
                 enemyHit.setActive(false).setVisible(false);
                 enemyHit.dead = true;
             }
@@ -351,6 +381,15 @@ class Play extends Phaser.Scene {
         }
     }
 
+    //phyics callback for health pickup object
+    healthHitCallback(healthHit, playerHit){
+        if(healthHit.active === true && playerHit.active === true){
+            playerHit.health +=1;
+            console.log("Player hp: ", playerHit.health);
+        }
+        healthHit.setActive(false).setVisible(false);
+    }
+
     //makes the enemy fire toward the player with a cooldown of about 3 seconds
     enemyFire(enemy, player, gameObject) {
         if (enemy.active === false){
@@ -387,4 +426,5 @@ class Play extends Phaser.Scene {
         let velocityY = Math.sin(angle)*maxVelocity;
         enemy.setVelocity(velocityX, velocityY);
     }
+
 }
