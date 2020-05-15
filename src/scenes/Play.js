@@ -41,22 +41,22 @@ class Play extends Phaser.Scene {
 
         //enemies
         this.enemies = [];
-        for(let i = 0; i < 10; i += 1){
-            this.enemies[i] = this.physics.add.sprite(100, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
-            this.enemies[i].health = 3;
-            this.enemies[i].lastFired = i*500;
-            this.enemies[i].dead = false;
-        }
+        // for(let i = 0; i < 10; i += 1){
+        //     this.enemies[i] = this.physics.add.sprite(100, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
+        //     this.enemies[i].health = 3;
+        //     this.enemies[i].lastFired = i*500;
+        //     this.enemies[i].dead = false;
+        // }
 
-        //dist enemies
+        // //dist enemies
         this.distEnemies = [];
-        for(let i = 0; i  < 10; i += 1) {
-            this.distEnemies[i] = this.physics.add.sprite(900, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
-            this.distEnemies[i].health = 3;
-            this.distEnemies[i].dead = false;
-            this.distEnemies[i].dropped = false;
-            this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback);
-        }
+        // for(let i = 0; i  < 10; i += 1) {
+        //     this.distEnemies[i] = this.physics.add.sprite(900, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
+        //     this.distEnemies[i].health = 3;
+        //     this.distEnemies[i].dead = false;
+        //     this.distEnemies[i].dropped = false;
+        //     this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback);
+        // }
         //make the distorted enemies inactive and invisible at start
         for(let i = 0; i < this.distEnemies.length; i++){
             this.distEnemies[i].setActive(false);
@@ -68,7 +68,7 @@ class Play extends Phaser.Scene {
         this.distWalls = this.physics.add.staticGroup();
 
         //create the walls
-        for(let i = 69; i < game.config.width; i+=250){
+        for(let i = 69; i < physics.worldBounds.width; i+=250){
             //create walls at i, i with a doubled scaled
             //we need to refresh the body so the physics body is the same as the image, 
             //and not the origional size
@@ -91,7 +91,7 @@ class Play extends Phaser.Scene {
         }
 
         //set camera zoom
-        this.cameras.main.zoom = 2;
+        this.cameras.main.zoom = .5;
 
         //create object for input with wasd keys
         this.moveKeys = this.input.keyboard.addKeys({
@@ -145,10 +145,12 @@ class Play extends Phaser.Scene {
                     this.physics.add.collider(this.distEnemies[i], bullet, this.enemyHitCallback);
                 } 
                 if(this.normalWallToggle.active == true) {
-                    this.physics.add.collider(bullet, this.normWalls, this.wallHitCallback);
+                    this.physics.add.collider(bullet, this.normWalls, this.wallHitCallback)
+                    .name = 'normalWallCollider';
                 }
-                else {
-                    this.physics.add.collider(bullet, this.distWalls, this.wallHitCallback);
+                else if(this.distortedWallToggle.active == true) {
+                    this.physics.add.collider(bullet, this.distWalls, this.wallHitCallback)
+                    .name = 'distortedWallCollider';
                 }
             }
         }, this);
@@ -272,6 +274,7 @@ class Play extends Phaser.Scene {
     //main mechanic of the game. "phase" the player by setting the objects around them to inactive and 
     //invisible. might need to change when tilemaps are introduced
     phase() {
+        //phase the walls back and forth
         if(this.normalWallToggle.active == true){
             this.normalWallToggle.active = false;
             this.normWalls.setAlpha(0);
@@ -284,6 +287,7 @@ class Play extends Phaser.Scene {
             this.distortedWallToggle.active = false;
             this.distWalls.setAlpha(0);
         }
+        //only respawn the enemies if they are not dead
         for(let i = 0; i < this.distEnemies.length; i++){
             if(this.distEnemies[i].dead == false) {
                 if(this.distEnemies[i].active == true){
@@ -306,6 +310,26 @@ class Play extends Phaser.Scene {
                     this.enemies[i].setActive(true);
                     this.enemies[i].setVisible(true);
                 }
+            }
+        }
+        //make sure the bullets dont collide with the non-active walls
+        //could place them in the first section when we switch the walls but that seems too cluttered
+        if(this.normalWallToggle.active == true){
+                let collider = this.physics.world.colliders.getActive().find(function(i){
+                    return i.name == 'distortedWallCollider'
+                });
+                if(collider){
+                    //console.log('dist wall collider destroyed');
+                    collider.destroy();
+                }
+        }
+        else if (this.distortedWallToggle.active == true){
+            let collider = this.physics.world.colliders.getActive().find(function(i){
+                return i.name == 'normalWallCollider'
+            });
+            if(collider){
+                //console.log('normal wall collider destroyed');
+                collider.destroy();
             }
         }
     }
@@ -377,7 +401,7 @@ class Play extends Phaser.Scene {
     //this should be basically the same as an enemy bullet collision, but the enemy doesnt disapear. 
     wallHitCallback(bulletHit, wallHit) {
         if(wallHit.active === true && bulletHit.active === true){
-            bulletHit.setActive(false).setVisible(false);
+            bulletHit.setActive(false).setVisible(false).destroy();
         }
     }
 
