@@ -23,6 +23,8 @@ class Menu extends Phaser.Scene {
             fixedWidth: 0
         }
 
+        game.sound.volume = .1;
+
         //show menu text
         let centerX = game.config.width/2;
         let centerY = game.config.height/2 ;

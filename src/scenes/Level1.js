@@ -39,6 +39,14 @@ class Level1 extends Phaser.Scene {
         this.player = this.physics.add.sprite(game.config.width/2, game.config.height/2, 'playerSprite');
         this.reticle = this.physics.add.sprite(game.config.width/2, game.config.height/2, 'target');
 
+        //sound files as their own object in the hope that i can play them inside of a physics collider
+        this.gunshotSFX = this.sound.add('sfx_gunshot');
+        this.playerHitSFX = this.sound.add('sfx_playerHit');
+        this.phaseSFX = this.sound.add('sfx_phase');
+        this.enemyHitSFX = this.sound.add('sfx_enemyHit');
+        game.sound.volume = .1;
+
+
         //set image/sprite properties
         this.player.setCollideWorldBounds(true).setDrag(500, 500).setScale(1, 1).setOrigin(.5, .5);
         this.reticle.setCollideWorldBounds(true).setScale(1, 1).setOrigin(.5, .5);
@@ -64,7 +72,7 @@ class Level1 extends Phaser.Scene {
             this.distEnemies[i].health = 3;
             this.distEnemies[i].dead = false;
             this.distEnemies[i].dropped = false;
-            this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback);
+            this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback, null, this);
         }
         //make the distorted enemies inactive and invisible at start
         for(let i = 0; i < this.distEnemies.length; i++){
@@ -161,10 +169,10 @@ class Level1 extends Phaser.Scene {
             if (bullet)
             {  
                 for(let i = 0; i < this.enemies.length; i ++){
-                    this.physics.add.collider(this.enemies[i], bullet, this.enemyHitCallback);
+                    this.physics.add.collider(this.enemies[i], bullet, this.enemyHitCallback, null, this);
                 } 
                 for(let i = 0; i < this.distEnemies.length; i ++){
-                    this.physics.add.collider(this.distEnemies[i], bullet, this.enemyHitCallback);
+                    this.physics.add.collider(this.distEnemies[i], bullet, this.enemyHitCallback, null, this);
                 } 
                 if(this.normalWallToggle.active == true) {
                     this.physics.add.collider(bullet, this.normWalls, this.wallHitCallback)
@@ -174,10 +182,10 @@ class Level1 extends Phaser.Scene {
                     this.physics.add.collider(bullet, this.distWalls, this.wallHitCallback)
                     .name = 'distortedWallCollider';
                 }
-                this.physics.add.collider(bullet, this.button1, this.buttonHitCallback);
-                this.physics.add.collider(bullet, this.button2, this.buttonHitCallback);
+                this.physics.add.collider(bullet, this.button1, this.buttonHitCallback, null, this);
+                this.physics.add.collider(bullet, this.button2, this.buttonHitCallback, null, this);
                 bullet.fire(this.player, this.reticle);
-                this.sound.play('sfx_gunshot');
+                this.gunshotSFX.play();
             }
         }, this);
     }
@@ -377,7 +385,7 @@ class Level1 extends Phaser.Scene {
                     health.x = enemyHit.x;
                     health.y = enemyHit.y;
                     health.setActive(true).setVisible(true);
-                    this.physics.add.collider(health, this.player, this.healthHitCallback);
+                    this.physics.add.collider(health, this.player, this.healthHitCallback, null, this);
                     enemyHit.dropped = true;
                     break;
                 }
@@ -399,7 +407,7 @@ class Level1 extends Phaser.Scene {
                 enemyHit.setActive(false).setVisible(false).destroy();
                 enemyHit.dead = true;
             }
-
+            this.enemyHitSFX.play();
             //destroy bullet
             bulletHit.setActive(false).setVisible(false).destroy();
         }
@@ -416,6 +424,7 @@ class Level1 extends Phaser.Scene {
                 // this.add.text(playerHit.x, playerHit.y, 'GAME OVER', menuConfig).setOrigin(.5);
                 console.log('GAME OVER');
             }
+            this.playerHitSFX.play();
         }
     }
 
@@ -428,6 +437,7 @@ class Level1 extends Phaser.Scene {
                 // this.add.text(playerHit.x, playerHit.y, 'GAME OVER', menuConfig).setOrigin(.5);
                 console.log('GAME OVER');
             }
+            this.playerHitSFX.play();
         }
     }
 
@@ -470,7 +480,7 @@ class Level1 extends Phaser.Scene {
                 bullet.fire(enemy, player);
                 
                 // Add collider between bullet and player
-                gameObject.physics.add.collider(player, bullet, this.playerHitCallback);
+                gameObject.physics.add.collider(player, bullet, this.playerHitCallback, null, this);
                 //collider between walls depending on whats active
                 if(this.normalWallToggle.active == true) {
                     gameObject.physics.add.collider(bullet, this.normWalls, this.wallHitCallback);
