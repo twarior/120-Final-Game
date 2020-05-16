@@ -14,6 +14,10 @@ class Level1 extends Phaser.Scene {
         this.load.image('health', './assets/sprites/healthSprite.png');
         this.load.image('closedDoor', './assets/sprites/closedDoor.png');
         this.load.image('button', './assets/sprites/button.png');
+        this.load.audio('sfx_gunshot', './assets/sfx/gunshot03.mp3');
+        this.load.audio('sfx_playerHit', './assets/sfx/playerHit03.mp3');
+        this.load.audio('sfx_phase', './assets/sfx/transitionMid.mp3');
+        this.load.audio('sfx_enemyHit', './assets/sfx/Damage.mp3');
     }
 
 //=====================================================================================================
@@ -46,22 +50,22 @@ class Level1 extends Phaser.Scene {
 
         //enemies
         this.enemies = [];
-        // for(let i = 0; i < 10; i += 1){
-        //     this.enemies[i] = this.physics.add.sprite(100, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
-        //     this.enemies[i].health = 3;
-        //     this.enemies[i].lastFired = i*500;
-        //     this.enemies[i].dead = false;
-        // }
+        for(let i = 0; i < 10; i += 1){
+            this.enemies[i] = this.physics.add.sprite(100, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
+            this.enemies[i].health = 3;
+            this.enemies[i].lastFired = i*500;
+            this.enemies[i].dead = false;
+        }
 
         // //dist enemies
         this.distEnemies = [];
-        // for(let i = 0; i  < 10; i += 1) {
-        //     this.distEnemies[i] = this.physics.add.sprite(900, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
-        //     this.distEnemies[i].health = 3;
-        //     this.distEnemies[i].dead = false;
-        //     this.distEnemies[i].dropped = false;
-        //     this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback);
-        // }
+        for(let i = 0; i  < 10; i += 1) {
+            this.distEnemies[i] = this.physics.add.sprite(900, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
+            this.distEnemies[i].health = 3;
+            this.distEnemies[i].dead = false;
+            this.distEnemies[i].dropped = false;
+            this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback);
+        }
         //make the distorted enemies inactive and invisible at start
         for(let i = 0; i < this.distEnemies.length; i++){
             this.distEnemies[i].setActive(false);
@@ -155,8 +159,7 @@ class Level1 extends Phaser.Scene {
             var bullet = this.playerBullets.get().setActive(true).setVisible(true);
     
             if (bullet)
-            {
-                bullet.fire(this.player, this.reticle);
+            {  
                 for(let i = 0; i < this.enemies.length; i ++){
                     this.physics.add.collider(this.enemies[i], bullet, this.enemyHitCallback);
                 } 
@@ -173,6 +176,8 @@ class Level1 extends Phaser.Scene {
                 }
                 this.physics.add.collider(bullet, this.button1, this.buttonHitCallback);
                 this.physics.add.collider(bullet, this.button2, this.buttonHitCallback);
+                bullet.fire(this.player, this.reticle);
+                this.sound.play('sfx_gunshot');
             }
         }, this);
     }
@@ -302,6 +307,7 @@ class Level1 extends Phaser.Scene {
     //main mechanic of the game. "phase" the player by setting the objects around them to inactive and 
     //invisible. might need to change when tilemaps are introduced
     phase() {
+        this.sound.play('sfx_phase');
         //phase the walls back and forth
         if(this.normalWallToggle.active == true){
             this.normalWallToggle.active = false;
@@ -405,12 +411,12 @@ class Level1 extends Phaser.Scene {
         if (bulletHit.active === true && playerHit.active === true) {
             playerHit.health = playerHit.health - 1;
             console.log("Player hp: ", playerHit.health);
+            bulletHit.setActive(false).setVisible(false).destroy();
+            if (playerHit.health <=0 ){
+                // this.add.text(playerHit.x, playerHit.y, 'GAME OVER', menuConfig).setOrigin(.5);
+                console.log('GAME OVER');
+            }
         }
-        if (playerHit.health <=0 ){
-            // this.add.text(playerHit.x, playerHit.y, 'GAME OVER', menuConfig).setOrigin(.5);
-            console.log('GAME OVER');
-        }
-        bulletHit.setActive(false).setVisible(false).destroy();
     }
 
     //physics callback for when an enemy punches the player
@@ -418,10 +424,10 @@ class Level1 extends Phaser.Scene {
         if(playerHit.active === true && enemyHit.active === true){
             playerHit.health -= 1;
             console.log("Player hp: ", playerHit.health);
-        }
-        if (playerHit.health <=0 ){
-            // this.add.text(playerHit.x, playerHit.y, 'GAME OVER', menuConfig).setOrigin(.5);
-            console.log('GAME OVER');
+            if (playerHit.health <=0 ){
+                // this.add.text(playerHit.x, playerHit.y, 'GAME OVER', menuConfig).setOrigin(.5);
+                console.log('GAME OVER');
+            }
         }
     }
 
@@ -439,7 +445,6 @@ class Level1 extends Phaser.Scene {
             bulletHit.setActive(false).setVisible(false).destroy();
         }
         buttonHit.pressed = true;
-        console.log(buttonHit);
     }
 
     //phyics callback for health pickup object

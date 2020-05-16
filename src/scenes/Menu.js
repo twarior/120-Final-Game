@@ -5,6 +5,7 @@ class Menu extends Phaser.Scene {
 
     preload(){
         //load audio here
+        this.load.audio('sfx_select', './assets/sfx/menuSelect.mp3');
         
     }
 
@@ -46,6 +47,7 @@ class Menu extends Phaser.Scene {
     update() {
         //if the player presses the up arrow the game will start
         if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
+            this.sound.play('sfx_select');
             this.scene.start("Level1Scene");
         }
         else if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
