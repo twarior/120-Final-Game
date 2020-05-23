@@ -18,15 +18,29 @@ class Level1 extends Phaser.Scene {
         this.load.audio('sfx_playerHit', './assets/sfx/playerHit03.mp3');
         this.load.audio('sfx_phase', './assets/sfx/transitionMid.mp3');
         this.load.audio('sfx_enemyHit', './assets/sfx/Damage.mp3');
-        //this.load.image('tiles', 'Norm_spritesheet.png');
-		//this.load.tilemapTiledJSON('tilemap', 'New_Norm_Test.json');
+        this.load.image('tiles', './assets/tilemaps/Norm_spritesheet.png');
+	    this.load.tilemapTiledJSON('tilemap', './assets/tilemaps/New_Norm_Test.json');
     }
 
 //=====================================================================================================
 
     create(){
-        this.width = 1920;
-        this.height = 1080;
+        const map = this.make.tilemap({ key: 'tilemap' })
+		const tileset = map.addTilesetImage('Norm_spritesheet', 'tiles')
+		
+		map.createStaticLayer('Background', tileset)
+		const normalGatesLayer = map.createStaticLayer('Gates', tileset)
+		const normalGravesLayer = map.createStaticLayer('Graves', tileset)
+		map.createStaticLayer('Fountain', tileset)
+		map.createStaticLayer('Mausoleum', tileset)
+		map.createStaticLayer('Ducky', tileset)
+
+        normalGatesLayer.setCollisionByProperty({ collides: true});
+        normalGravesLayer.setCollisionByProperty({ collides: true});
+        
+        this.width = 32*16;
+        this.height = 16*16;
+        console.log(map.width + " " + map.height);
 
         //create world bounds
         this.physics.world.setBounds(0, 0, this.width, this.height);
@@ -37,20 +51,25 @@ class Level1 extends Phaser.Scene {
         });
 
         //add background, player, and reticle sprites
-        var background = this.add.image(0, 0, 'background').setOrigin(0, 0);
+        //var background = this.add.image(0, 0, 'background').setOrigin(0, 0);
         this.player = this.physics.add.sprite(game.config.width/2, game.config.height/2, 'playerSprite');
         this.reticle = this.physics.add.sprite(game.config.width/2, game.config.height/2, 'target');
+
+        this.physics.add.collider(this.player, normalGravesLayer);
+        this.physics.add.collider(this.player, normalGatesLayer);
 
         //sound files as their own object in the hope that i can play them inside of a physics collider
         this.gunshotSFX = this.sound.add('sfx_gunshot');
         this.playerHitSFX = this.sound.add('sfx_playerHit');
         this.phaseSFX = this.sound.add('sfx_phase');
         this.enemyHitSFX = this.sound.add('sfx_enemyHit');
-        game.sound.volume = .1;
+        game.sound.volume = .05;
 
 
         //set image/sprite properties
         this.player.setCollideWorldBounds(true).setDrag(500, 500).setScale(1, 1).setOrigin(.5, .5);
+        this.player.x = 64;
+        this.player.y = 64;
         this.reticle.setCollideWorldBounds(true).setScale(1, 1).setOrigin(.5, .5);
         this.player.health = 10;
 
@@ -60,22 +79,22 @@ class Level1 extends Phaser.Scene {
 
         //enemies
         this.enemies = [];
-        for(let i = 0; i < 10; i += 1){
-            this.enemies[i] = this.physics.add.sprite(100, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
-            this.enemies[i].health = 3;
-            this.enemies[i].lastFired = i*500;
-            this.enemies[i].dead = false;
-        }
+        // for(let i = 0; i < 10; i += 1){
+        //     this.enemies[i] = this.physics.add.sprite(100, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
+        //     this.enemies[i].health = 3;
+        //     this.enemies[i].lastFired = i*500;
+        //     this.enemies[i].dead = false;
+        // }
 
         // //dist enemies
         this.distEnemies = [];
-        for(let i = 0; i  < 10; i += 1) {
-            this.distEnemies[i] = this.physics.add.sprite(900, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
-            this.distEnemies[i].health = 3;
-            this.distEnemies[i].dead = false;
-            this.distEnemies[i].dropped = false;
-            this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback, null, this);
-        }
+        // for(let i = 0; i  < 10; i += 1) {
+        //     this.distEnemies[i] = this.physics.add.sprite(900, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
+        //     this.distEnemies[i].health = 3;
+        //     this.distEnemies[i].dead = false;
+        //     this.distEnemies[i].dropped = false;
+        //     this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback, null, this);
+        // }
         //make the distorted enemies inactive and invisible at start
         for(let i = 0; i < this.distEnemies.length; i++){
             this.distEnemies[i].setActive(false);
@@ -89,22 +108,22 @@ class Level1 extends Phaser.Scene {
         this.buttons = this.physics.add.staticGroup();
 
         //create the walls
-        for(let i = 0; i < this.width; i+= 75){
-            //create walls at i, i with a doubled scaled
-            //we need to refresh the body so the physics body is the same as the image, 
-            //and not the origional size
-            this.doors[i/75] = this.physics.add.sprite(i, 100, 'closedDoor')
-                .setScale(2).setRotation(1.5708);
-            this.doors[i/75].body.immovable = true;
-            this.normWalls.create(i, 300, 'normalWall').setScale(2).setRotation(1.5708).refreshBody();
-            this.distWalls.create(i, 500, 'distortedWall').setScale(2).setRotation(1.5708).refreshBody();
-        }
+        // for(let i = 0; i < this.width; i+= 75){
+        //     //create walls at i, i with a doubled scaled
+        //     //we need to refresh the body so the physics body is the same as the image, 
+        //     //and not the origional size
+        //     this.doors[i/75] = this.physics.add.sprite(i, 100, 'closedDoor')
+        //         .setScale(2).setRotation(1.5708);
+        //     this.doors[i/75].body.immovable = true;
+        //     this.normWalls.create(i, 300, 'normalWall').setScale(2).setRotation(1.5708).refreshBody();
+        //     this.distWalls.create(i, 500, 'distortedWall').setScale(2).setRotation(1.5708).refreshBody();
+        // }
 
-        this.button1 = this.buttons.create(690, 690, 'button').setScale(2).setRotation(1.5708).refreshBody();
-        this.button2 = this.buttons.create(960, 960, 'button').setScale(2).setRotation(1.5708).refreshBody();
-        this.button1.pressed = false;
-        this.button2.pressed = false;
-        this.opened = false;
+         this.button1 = this.buttons.create(690, 690, 'button').setScale(2).setRotation(1.5708).refreshBody();
+         this.button2 = this.buttons.create(960, 960, 'button').setScale(2).setRotation(1.5708).refreshBody();
+        // this.button1.pressed = false;
+        // this.button2.pressed = false;
+        // this.opened = false;
 
         //add collision with walls
         this.normalWallToggle = this.physics.add.collider(this.player, this.normWalls);
@@ -124,7 +143,7 @@ class Level1 extends Phaser.Scene {
         }
 
         //set camera zoom
-        this.cameras.main.zoom = .5;
+        //this.cameras.main.zoom = 4;
 
         //create object for input with wasd keys
         this.moveKeys = this.input.keyboard.addKeys({
@@ -227,10 +246,10 @@ class Level1 extends Phaser.Scene {
         this.reticle.body.velocity.y = this.player.body.velocity.y;
 
         // Constrain velocity of player
-        this.constrainVelocity(this.player, 250);
+        this.constrainVelocity(this.player, 75);
 
         // Constrain position of reticle
-        this.constrainReticle(this.reticle, this.player, 200);
+        this.constrainReticle(this.reticle, this.player, 64);
 
         //points the player at the reticle
         this.player.rotation = Phaser.Math.Angle.Between(this.player.x, this.player.y, 
