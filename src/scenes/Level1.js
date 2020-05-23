@@ -18,6 +18,8 @@ class Level1 extends Phaser.Scene {
         this.load.audio('sfx_playerHit', './assets/sfx/playerHit03.mp3');
         this.load.audio('sfx_phase', './assets/sfx/transitionMid.mp3');
         this.load.audio('sfx_enemyHit', './assets/sfx/Damage.mp3');
+        //this.load.image('tiles', 'Norm_spritesheet.png');
+		//this.load.tilemapTiledJSON('tilemap', 'New_Norm_Test.json');
     }
 
 //=====================================================================================================
