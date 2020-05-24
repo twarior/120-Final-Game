@@ -3,7 +3,7 @@ class Bullet extends Phaser.GameObjects.Sprite {
         
         super(scene, x, y, texture);
         Phaser.GameObjects.Sprite.call(this, scene, 0, 0, 'bullet');
-        this.speed = 1;
+        this.speed = 2;
         this.born = 0;
         this.direction = 0;
         this.xSpeed = 0;

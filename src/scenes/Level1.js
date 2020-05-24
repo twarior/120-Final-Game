@@ -115,7 +115,7 @@ class Level1 extends Phaser.Scene {
         this.player.x = 64;
         this.player.y = 64;
         this.reticle.setCollideWorldBounds(true).setScale(1, 1).setOrigin(.5, .5);
-        this.player.health = 10;
+        this.player.health = 3;
 
         //add bulllet groups for both player and enemies
         this.playerBullets = this.physics.add.group({classType: Bullet, runChildUpdate: true});
@@ -296,6 +296,8 @@ class Level1 extends Phaser.Scene {
             this.opened = true;
         }
         //console.log(this.player.x +" "+ this.player.y);
+        this.playerWin();
+        this.playerLose();
     }
 
 //=======================================================================================================
@@ -581,6 +583,36 @@ class Level1 extends Phaser.Scene {
             }
         }
         //console.log('doors open wide');
+    }
+
+    playerWin() {
+        let win = false;
+        for(let i = 0; i < this.enemies.length; i++){
+            if(this.enemies[i].dead == false){
+                win = false;
+                break;
+            }
+            win = true;
+        }
+        for(let i = 0; i < this.distEnemies.length; i++){
+            if(this.distEnemies[i].dead == false){
+                win = false;
+                break;
+            }
+        }
+        if(win == true){
+            this.player.active = false;
+            this.player.destroy();
+            this.add.text(this.player.x, this.player.y, "YOU WIN");
+        }    
+    }
+
+    playerLose() {
+        if(this.player.health <= 0){
+            this.player.active = false;
+            this.player.destroy();
+            this.add.text(this.player.x, this.player.y, "YOU LOSE");
+        }
     }
 
 }
