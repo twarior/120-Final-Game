@@ -18,28 +18,40 @@ class Level1 extends Phaser.Scene {
         this.load.audio('sfx_playerHit', './assets/sfx/playerHit03.mp3');
         this.load.audio('sfx_phase', './assets/sfx/transitionMid.mp3');
         this.load.audio('sfx_enemyHit', './assets/sfx/Damage.mp3');
-        this.load.image('tiles', './assets/tilemaps/Norm_spritesheet.png');
-	    this.load.tilemapTiledJSON('tilemap', './assets/tilemaps/New_Norm_Test.json');
+        this.load.image('bothWorldsSprites', './assets/tilemaps/Both_Maps_spritesheet.png');
+	    this.load.tilemapTiledJSON('bothWorldsMap', './assets/tilemaps/Both_Maps.json');
     }
 
 //=====================================================================================================
 
     create(){
-        const map = this.make.tilemap({ key: 'tilemap' })
-		const tileset = map.addTilesetImage('Norm_spritesheet', 'tiles')
+        //create the tilemaps and the layers as constant objects so we can access them
+        const map = this.make.tilemap({ key: 'bothWorldsMap' });
+		const tileset = map.addTilesetImage('Both_Maps_spritesheet', 'bothWorldsSprites');
 		
-		map.createStaticLayer('Background', tileset)
-		const normalGatesLayer = map.createStaticLayer('Gates', tileset)
-		const normalGravesLayer = map.createStaticLayer('Graves', tileset)
-		map.createStaticLayer('Fountain', tileset)
-		map.createStaticLayer('Mausoleum', tileset)
-		map.createStaticLayer('Ducky', tileset)
-
-        normalGatesLayer.setCollisionByProperty({ collides: true});
-        normalGravesLayer.setCollisionByProperty({ collides: true});
+		const normalBackground = map.createStaticLayer('Norm_Background', tileset);
+		const normalGates = map.createStaticLayer('Norm_Gates', tileset);
+		const normalGraves = map.createStaticLayer('Norm_Graves', tileset);
+		const normalMausoleum = map.createStaticLayer('Norm_Mausoleum', tileset);
+		const normalFountain = map.createStaticLayer('Norm_Fountain', tileset);
+		const normalDucks = map.createStaticLayer('Norm_Ducks', tileset);
+		const distortedBackground = map.createStaticLayer('Dist_Background', tileset);
+		const distortedGates = map.createStaticLayer('Dist_Gates', tileset);
+		const distortedGraves = map.createStaticLayer('Dist_Graves', tileset);
+		const distortedWell = map.createStaticLayer('Dist_Well', tileset);
+		const distortedFountain =  map.createStaticLayer('Dist_Fountain', tileset);
+        const distortedHoles =  map.createStaticLayer('Dist_Holes', tileset);
         
-        this.width = 32*16;
-        this.height = 16*16;
+        //create arrays to store the collidiable objects and the non
+        this.normalObjects = [normalGates, normalGraves, normalMausoleum, normalFountain];
+        this.normalScenery = [normalBackground, normalDucks];
+        this.distortedObjects = [distortedGates, distortedGraves, distortedWell, distortedFountain, 
+            distortedHoles];
+        this.distortedScenery = [distortedBackground];
+
+        //height and width of the world based on the tilemap
+        this.width = map.width*16;
+        this.height = map.height*16;
         console.log(map.width + " " + map.height);
 
         //create world bounds
@@ -50,13 +62,45 @@ class Level1 extends Phaser.Scene {
             loop: true
         });
 
-        //add background, player, and reticle sprites
-        //var background = this.add.image(0, 0, 'background').setOrigin(0, 0);
+        //add player, and reticle sprites
         this.player = this.physics.add.sprite(game.config.width/2, game.config.height/2, 'playerSprite');
         this.reticle = this.physics.add.sprite(game.config.width/2, game.config.height/2, 'target');
 
-        this.physics.add.collider(this.player, normalGravesLayer);
-        this.physics.add.collider(this.player, normalGatesLayer);
+        //set the collisions to true for all collidable objects then set the distorted world to
+        //invisable and inactive 
+        for(let i = 0; i < this.normalObjects.length; i++){
+            this.normalObjects[i].setCollisionByProperty({ collides: true});
+        }
+        for(let i = 0; i < this.distortedObjects.length; i++){    
+            this.distortedObjects[i].setCollisionByProperty({ collides: true});
+            this.distortedObjects[i].setActive(false).setVisible(false);
+        }
+        for(let i = 0; i < this.distortedScenery.length; i++){
+            this.distortedScenery[i].setActive(false).setVisible(false);
+        }
+
+        //create toggles for the physics colliders in both worlds 
+        this.normalGatesToggle = this.physics.add.collider(this.player, normalGates);
+        this.normalGravesToggle = this.physics.add.collider(this.player, normalGraves);
+        this.normalMausoleumToggle = this.physics.add.collider(this.player, normalMausoleum);
+        this.normalFountainToggle = this.physics.add.collider(this.player, normalFountain);
+        this.distortedGatesToggle = this.physics.add.collider(this.player, distortedGates);
+        this.distortedGravesToggles = this.physics.add.collider(this.player, distortedGraves);
+        this.distortedHolesToggle = this.physics.add.collider(this.player, distortedHoles);
+        this.distortedWellToggle = this.physics.add.collider(this.player, distortedWell);
+        this.distortedFountainToggle = this.physics.add.collider(this.player, distortedFountain);
+        //put those in arrays for safe keeping
+        this.normalColliderToggles = [this.normalGatesToggle, this.normalGravesToggle, 
+            this.normalMausoleumToggle, this.normalFountainToggle];
+        this.distortedColliderToggles = [this.distortedGatesToggle, this.distortedGravesToggles, 
+            this.distortedHolesToggle, this.distortedWellToggle, this.distortedFountainToggle];
+        //turn off the colliders in the distorted world
+        for(let i = 0; i < this.distortedColliderToggles.length; i ++){
+            this.distortedColliderToggles[i].active = false;
+        }
+
+        //create a boolean for keeping track of which world the player is in
+        this.inNormalWorld = true;
 
         //sound files as their own object in the hope that i can play them inside of a physics collider
         this.gunshotSFX = this.sound.add('sfx_gunshot');
@@ -101,39 +145,14 @@ class Level1 extends Phaser.Scene {
             this.distEnemies[i].setVisible(false);
         }
 
-        //add wall groups
-        this.normWalls = this.physics.add.staticGroup();
-        this.distWalls = this.physics.add.staticGroup();
         this.doors = [];
         this.buttons = this.physics.add.staticGroup();
 
-        //create the walls
-        // for(let i = 0; i < this.width; i+= 75){
-        //     //create walls at i, i with a doubled scaled
-        //     //we need to refresh the body so the physics body is the same as the image, 
-        //     //and not the origional size
-        //     this.doors[i/75] = this.physics.add.sprite(i, 100, 'closedDoor')
-        //         .setScale(2).setRotation(1.5708);
-        //     this.doors[i/75].body.immovable = true;
-        //     this.normWalls.create(i, 300, 'normalWall').setScale(2).setRotation(1.5708).refreshBody();
-        //     this.distWalls.create(i, 500, 'distortedWall').setScale(2).setRotation(1.5708).refreshBody();
-        // }
-
-         this.button1 = this.buttons.create(690, 690, 'button').setScale(2).setRotation(1.5708).refreshBody();
-         this.button2 = this.buttons.create(960, 960, 'button').setScale(2).setRotation(1.5708).refreshBody();
+        this.button1 = this.buttons.create(690, 690, 'button').setScale(2).setRotation(1.5708).refreshBody();
+        this.button2 = this.buttons.create(960, 960, 'button').setScale(2).setRotation(1.5708).refreshBody();
         // this.button1.pressed = false;
         // this.button2.pressed = false;
         // this.opened = false;
-
-        //add collision with walls
-        this.normalWallToggle = this.physics.add.collider(this.player, this.normWalls);
-        this.distortedWallToggle = this.physics.add.collider(this.player, this.distWalls);
-        this.physics.add.collider(this.player, this.doors);
-        this.physics.add.collider(this.player, this.buttons);
-
-        //make the distorted wall invisable and no have collision on start
-        this.distWalls.setAlpha(0);
-        this.distortedWallToggle.active = false;
 
         //make health drop group
         this.healthDrops = [];
@@ -195,14 +214,7 @@ class Level1 extends Phaser.Scene {
                 for(let i = 0; i < this.distEnemies.length; i ++){
                     this.physics.add.collider(this.distEnemies[i], bullet, this.enemyHitCallback, null, this);
                 } 
-                if(this.normalWallToggle.active == true) {
-                    this.physics.add.collider(bullet, this.normWalls, this.wallHitCallback)
-                    .name = 'normalWallCollider';
-                }
-                else if(this.distortedWallToggle.active == true) {
-                    this.physics.add.collider(bullet, this.distWalls, this.wallHitCallback)
-                    .name = 'distortedWallCollider';
-                }
+                //need to add wall colliders here
                 this.physics.add.collider(bullet, this.button1, this.buttonHitCallback, null, this);
                 this.physics.add.collider(bullet, this.button2, this.buttonHitCallback, null, this);
                 bullet.fire(this.player, this.reticle);
@@ -249,7 +261,7 @@ class Level1 extends Phaser.Scene {
         this.constrainVelocity(this.player, 75);
 
         // Constrain position of reticle
-        this.constrainReticle(this.reticle, this.player, 64);
+        this.constrainReticle(this.reticle, this.player, 128);
 
         //points the player at the reticle
         this.player.rotation = Phaser.Math.Angle.Between(this.player.x, this.player.y, 
@@ -338,17 +350,47 @@ class Level1 extends Phaser.Scene {
     phase() {
         this.sound.play('sfx_phase');
         //phase the walls back and forth
-        if(this.normalWallToggle.active == true){
-            this.normalWallToggle.active = false;
-            this.normWalls.setAlpha(0);
-            this.distortedWallToggle.active = true;
-            this.distWalls.setAlpha(1);
+        if(this.inNormalWorld == true){
+            this.inNormalWorld = false;
+            for(let i = 0; i < this.normalColliderToggles.length; i++){
+                this.normalColliderToggles[i].active = false;
+            }
+            for(let i = 0; i < this.normalObjects.length; i++){
+                this.normalObjects[i].setActive(false).setVisible(false);
+            }
+            for(let i = 0; i < this.normalScenery.length; i++){
+                this.normalScenery[i].setActive(false).setVisible(false);
+            }
+            for(let i = 0; i < this.distortedColliderToggles.length; i++){
+                this.distortedColliderToggles[i].active = true;
+            }
+            for(let i = 0; i < this.distortedObjects.length; i++){    
+                this.distortedObjects[i].setActive(true).setVisible(true);
+            }
+            for(let i = 0; i < this.distortedScenery.length; i++){    
+                this.distortedScenery[i].setActive(true).setVisible(true);
+            }
         }
         else {
-            this.normalWallToggle.active = true;
-            this.normWalls.setAlpha(1);
-            this.distortedWallToggle.active = false;
-            this.distWalls.setAlpha(0);
+            this.inNormalWorld = true;
+            for(let i = 0; i < this.normalColliderToggles.length; i++){
+                this.normalColliderToggles[i].active = true;
+            }
+            for(let i = 0; i < this.normalObjects.length; i++){
+                this.normalObjects[i].setActive(true).setVisible(true);
+            }
+            for(let i = 0; i < this.normalScenery.length; i++){
+                this.normalScenery[i].setActive(true).setVisible(true);
+            }
+            for(let i = 0; i < this.distortedColliderToggles.length; i++){
+                this.distortedColliderToggles[i].active = false;
+            }
+            for(let i = 0; i < this.distortedObjects.length; i++){    
+                this.distortedObjects[i].setActive(false).setVisible(false);
+            }
+            for(let i = 0; i < this.distortedScenery.length; i++){    
+                this.distortedScenery[i].setActive(false).setVisible(false);
+            }
         }
         //only respawn the enemies if they are not dead
         for(let i = 0; i < this.distEnemies.length; i++){
@@ -377,24 +419,24 @@ class Level1 extends Phaser.Scene {
         }
         //make sure the bullets dont collide with the non-active walls
         //could place them in the first section when we switch the walls but that seems too cluttered
-        if(this.normalWallToggle.active == true){
-                let collider = this.physics.world.colliders.getActive().find(function(i){
-                    return i.name == 'distortedWallCollider'
-                });
-                if(collider){
-                    //console.log('dist wall collider destroyed');
-                    collider.destroy();
-                }
-        }
-        else if (this.distortedWallToggle.active == true){
-            let collider = this.physics.world.colliders.getActive().find(function(i){
-                return i.name == 'normalWallCollider'
-            });
-            if(collider){
-                //console.log('normal wall collider destroyed');
-                collider.destroy();
-            }
-        }
+        // if(this.normalWallToggle.active == true){
+        //         let collider = this.physics.world.colliders.getActive().find(function(i){
+        //             return i.name == 'distortedWallCollider'
+        //         });
+        //         if(collider){
+        //             //console.log('dist wall collider destroyed');
+        //             collider.destroy();
+        //         }
+        // }
+        // else if (this.distortedWallToggle.active == true){
+        //     let collider = this.physics.world.colliders.getActive().find(function(i){
+        //         return i.name == 'normalWallCollider'
+        //     });
+        //     if(collider){
+        //         //console.log('normal wall collider destroyed');
+        //         collider.destroy();
+        //     }
+        // }
     }
 
     spawnHealth(enemyHit){
