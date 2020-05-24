@@ -6,14 +6,14 @@ class Menu extends Phaser.Scene {
     preload(){
         //load audio here
         this.load.audio('sfx_select', './assets/sfx/menuSelect.mp3');
-        
+        this.load.image('menu', './assets/backgrounds/Menu.png');
     }
 
     create() {
         //menu display
         let menuConfig = {
             fontFamily: 'Sunflower',
-            fontSize: '28px',
+            fontSize: '10px',
             color: '#004FFF',
             align: 'center',
             padding: {
@@ -25,18 +25,19 @@ class Menu extends Phaser.Scene {
 
         game.sound.volume = .1;
 
-        //show menu text
-        let centerX = game.config.width/2;
-        let centerY = game.config.height/2 ;
-        let textSpacer = 64;
-        //this.add.text(centerX, centerY - textSpacer, 'FIRE TIRES', menuConfig).setOrigin(.5);
-        this.add.text(centerX, centerY - textSpacer, 'Use  W, A, S, and D to move', menuConfig).setOrigin(.5);
-        this.add.text(centerX, centerY, 'Press SPACE to Phase', menuConfig)
-            .setOrigin(.5);
-        this.add.text(centerX, centerY + textSpacer, 'Click any Mouse Button to Fire', menuConfig)
-            .setOrigin(.5);
-        this.add.text(centerX, centerY + 2*textSpacer, 'Press SPACE to Start', menuConfig)
-            .setOrigin(.5);
+        // //show menu text
+        // let centerX = game.config.width/2;
+        // let centerY = game.config.height/2 ;
+        // let textSpacer = 16;
+        // //this.add.text(centerX, centerY - textSpacer, 'FIRE TIRES', menuConfig).setOrigin(.5);
+        // this.add.text(centerX, centerY - textSpacer, 'Use  W, A, S, and D to move', menuConfig).setOrigin(.5);
+        // this.add.text(centerX, centerY, 'Press SPACE to Phase', menuConfig)
+        //     .setOrigin(.5);
+        // this.add.text(centerX, centerY + textSpacer, 'Click any Mouse Button to Fire', menuConfig)
+        //     .setOrigin(.5);
+        // this.add.text(centerX, centerY + 2*textSpacer, 'Press SPACE to Start', menuConfig)
+        //     .setOrigin(.5);
+        this.add.image(0, 0, 'menu').setOrigin(0,0);
 
         // define keys
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);

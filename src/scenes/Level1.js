@@ -122,23 +122,26 @@ class Level1 extends Phaser.Scene {
         this.enemyBullets = this.physics.add.group({classType: Bullet, runChildUpdate: true});
 
         //enemies
-        this.enemies = [];
-        // for(let i = 0; i < 10; i += 1){
-        //     this.enemies[i] = this.physics.add.sprite(100, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
-        //     this.enemies[i].health = 3;
-        //     this.enemies[i].lastFired = i*500;
-        //     this.enemies[i].dead = false;
-        // }
+        this.enemies = [this.physics.add.sprite(300, 216, 'enemySprite').setCollideWorldBounds(true),
+            this.physics.add.sprite(920, 380, 'enemySprite').setCollideWorldBounds(true)
+            ];
+        for(let i = 0; i < this.enemies.length; i += 1){
+            this.enemies[i].health = 3;
+            this.enemies[i].lastFired = i*500;
+            this.enemies[i].dead = false;
+        }
 
         // //dist enemies
-        this.distEnemies = [];
-        // for(let i = 0; i  < 10; i += 1) {
-        //     this.distEnemies[i] = this.physics.add.sprite(900, (i+1)*(100), 'enemySprite').setCollideWorldBounds(true);
-        //     this.distEnemies[i].health = 3;
-        //     this.distEnemies[i].dead = false;
-        //     this.distEnemies[i].dropped = false;
-        //     this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback, null, this);
-        // }
+        this.distEnemies = [this.physics.add.sprite(300, 300, 'enemySprite').setCollideWorldBounds(true),
+            this.physics.add.sprite(920, 380, 'enemySprite').setCollideWorldBounds(true)
+            ];
+        
+        for(let i = 0; i  < this.distEnemies.length; i += 1) { 
+            this.distEnemies[i].health = 3;
+            this.distEnemies[i].dead = false;
+            this.distEnemies[i].dropped = false;
+            this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback, null, this);
+        }
         //make the distorted enemies inactive and invisible at start
         for(let i = 0; i < this.distEnemies.length; i++){
             this.distEnemies[i].setActive(false);
@@ -280,7 +283,7 @@ class Level1 extends Phaser.Scene {
         }
         //make distorted enemies run toward player
         for(let i = 0; i < this.distEnemies.length; i++){
-            this.enemyMove(this.distEnemies[i], this.player, 200);
+            this.enemyMove(this.distEnemies[i], this.player, 16);
             if(this.distEnemies[i].dead == true && this.distEnemies[i].dropped == false){
                 this.spawnHealth(this.distEnemies[i]);
             }
@@ -292,6 +295,7 @@ class Level1 extends Phaser.Scene {
             this.openDoors();
             this.opened = true;
         }
+        //console.log(this.player.x +" "+ this.player.y);
     }
 
 //=======================================================================================================
@@ -545,11 +549,15 @@ class Level1 extends Phaser.Scene {
                 // Add collider between bullet and player
                 gameObject.physics.add.collider(player, bullet, this.playerHitCallback, null, this);
                 //collider between walls depending on whats active
-                if(this.normalWallToggle.active == true) {
-                    gameObject.physics.add.collider(bullet, this.normWalls, this.wallHitCallback);
+                if(this.inNormalWorld == true) {
+                    for(let i = 0; i < this.normalObjects.length; i++){
+                        gameObject.physics.add.collider(bullet, this.normalObjects[i], this.wallHitCallback);
+                    }
                 }
                 else {
-                    gameObject.physics.add.collider(bullet, this.distWalls, this.wallHitCallback);
+                    for(let i = 0; i < this.normalObjects.length; i++){
+                        gameObject.physics.add.collider(bullet, this.distortedObjects[i], this.wallHitCallback);
+                    }
                 }
             }
         }
@@ -572,7 +580,7 @@ class Level1 extends Phaser.Scene {
                 this.doors[i].x -= 10;
             }
         }
-        console.log('doors open wide');
+        //console.log('doors open wide');
     }
 
 }
