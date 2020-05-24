@@ -4,7 +4,7 @@ class Level1 extends Phaser.Scene {
     }
     preload(){
         //load assets here
-        this.load.image('playerSprite', './assets/sprites/smileyGun.png');
+        this.load.image('playerSprite', './assets/sprites/Main_Char_Bang_Bang.png');
         this.load.image('enemySprite', './assets/enemies/badSmiley.png');
         this.load.image('target', './assets/sprites/reticle.png');
         this.load.image('background', './assets/backgrounds/background.png');
