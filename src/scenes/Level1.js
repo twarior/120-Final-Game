@@ -62,6 +62,9 @@ class Level1 extends Phaser.Scene {
             loop: true
         });
 
+        //game over boolean
+        this.gameOver = false;
+
         //add player, and reticle sprites
         this.player = this.physics.add.sprite(game.config.width/2, game.config.height/2, 'playerSprite');
         this.reticle = this.physics.add.sprite(game.config.width/2, game.config.height/2, 'target');
@@ -167,13 +170,17 @@ class Level1 extends Phaser.Scene {
         //set camera zoom
         //this.cameras.main.zoom = 4;
 
-        //create object for input with wasd keys
+        //create object for input with wasd keys and menu buttons up and down arrow
         this.moveKeys = this.input.keyboard.addKeys({
             'up': Phaser.Input.Keyboard.KeyCodes.W,
             'down': Phaser.Input.Keyboard.KeyCodes.S,
             'left': Phaser.Input.Keyboard.KeyCodes.A,
             'right': Phaser.Input.Keyboard.KeyCodes.D,
             'space': Phaser.Input.Keyboard.KeyCodes.SPACE,
+        });
+        this.arrowKeys = this.input.keyboard.addKeys({
+            'upArrow' : Phaser.Input.Keyboard.KeyCodes.UP,
+            'downArrow' : Phaser.Input.Keyboard.KeyCodes.DOWN,
         });
         
         //locks pointer on mousedown
@@ -230,22 +237,22 @@ class Level1 extends Phaser.Scene {
 
     update(time, delta){
         //player movement
-        if (this.moveKeys.up.isDown){
+        if (!this.gameOver && this.moveKeys.up.isDown){
             this.player.setAccelerationY(-800);
         }
-        if (this.moveKeys.down.isDown){
+        if (!this.gameOver && this.moveKeys.down.isDown){
             this.player.setAccelerationY(800);
         }
-        if (this.moveKeys.left.isDown){
+        if (!this.gameOver && this.moveKeys.left.isDown){
             this.player.setAccelerationX(-800);
         }
-        if (this.moveKeys.right.isDown){
+        if (!this.gameOver && this.moveKeys.right.isDown){
             this.player.setAccelerationX(800);
         }
-        if (this.moveKeys.up.isUp && this.moveKeys.down.isUp){
+        if (!this.gameOver && this.moveKeys.up.isUp && this.moveKeys.down.isUp){
             this.player.setAccelerationY(0);
         }
-        if (this.moveKeys.left.isUp && this.moveKeys.right.isUp){
+        if (!this.gameOver && this.moveKeys.left.isUp && this.moveKeys.right.isUp){
             this.player.setAccelerationX(0);
         }
         
@@ -257,8 +264,10 @@ class Level1 extends Phaser.Scene {
         this.cameras.main.startFollow(this.player);
 
         //makes reticle move with player
-        this.reticle.body.velocity.x = this.player.body.velocity.x;
-        this.reticle.body.velocity.y = this.player.body.velocity.y;
+        if(!this.gameOver){
+            this.reticle.body.velocity.x = this.player.body.velocity.x;
+            this.reticle.body.velocity.y = this.player.body.velocity.y;
+        }
 
         // Constrain velocity of player
         this.constrainVelocity(this.player, 75);
@@ -298,6 +307,7 @@ class Level1 extends Phaser.Scene {
         //console.log(this.player.x +" "+ this.player.y);
         this.playerWin();
         this.playerLose();
+        this.restartGame();
     }
 
 //=======================================================================================================
@@ -604,6 +614,7 @@ class Level1 extends Phaser.Scene {
             this.player.active = false;
             this.player.destroy();
             this.add.text(this.player.x, this.player.y, "YOU WIN");
+            this.gameOver = true;
         }    
     }
 
@@ -612,6 +623,20 @@ class Level1 extends Phaser.Scene {
             this.player.active = false;
             this.player.destroy();
             this.add.text(this.player.x, this.player.y, "YOU LOSE");
+            this.gameOver = true;
+        }
+    }
+
+    restartGame() {
+        if(this.gameOver == true){
+            this.add.text(this.player.x - 96, this.player.y + 32, '⇡ to Restart or ⇣ for Menu'); 
+            if (this.arrowKeys.upArrow.isDown){
+                game.settings.gameScore = 0;
+                this.scene.restart(game.settings.gameScore);
+            }
+            else if (this.arrowKeys.downArrow.isDown){
+                this.scene.start("menuScene");
+            }
         }
     }
 
