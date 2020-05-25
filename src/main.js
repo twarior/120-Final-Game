@@ -1,6 +1,15 @@
 //Tennessee Phillips Ward, Katarina Kelso, Kalvin Vinski
 //
-
+//References for Code:
+//https://phaser.io/examples/v3/category/games/topdownshooter
+//Specifically the combat mechanics one I referenced a lot. 
+//
+//https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
+//https://ourcade.co/tools/phaser3-tiled-parser 
+//I used this article a bit, but decided that a lot of it wasn't necessary becasue Tiled and the Ourcade
+//app worked well together so I didn't need much additional code. 
+//https://github.com/nathanaltice/Mappy/blob/master/src/Scenes/TiledPlatform.js
+//The additional code it did need for the physics systems to work I found here on Nathan's Github
 
 
 let config = {
