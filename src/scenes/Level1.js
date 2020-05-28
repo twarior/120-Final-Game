@@ -224,6 +224,15 @@ class Level1 extends Phaser.Scene {
                 for(let i = 0; i < this.distEnemies.length; i ++){
                     this.physics.add.collider(this.distEnemies[i], bullet, this.enemyHitCallback, null, this);
                 } 
+                //stop the bullets on the present walls 
+                for(let i = 0; i < this.normalObjects.length; i++){
+                    if(this.inNormalWorld)
+                        this.physics.add.collider(bullet, this.normalObjects[i], this.wallHitCallback, null, this);
+                }
+                for(let i = 0; i < this.distortedObjects.length; i++){
+                    if(!this.inNormalWorld)
+                        this.physics.add.collider(bullet, this.distortedObjects[i], this.wallHitCallback, null, this);
+                }
                 //need to add wall colliders here
                 this.physics.add.collider(bullet, this.button1, this.buttonHitCallback, null, this);
                 this.physics.add.collider(bullet, this.button2, this.buttonHitCallback, null, this);
@@ -280,7 +289,7 @@ class Level1 extends Phaser.Scene {
             this.reticle.x, this.reticle.y)
 
         //phase the player if they press space
-        if (Phaser.Input.Keyboard.JustDown(this.moveKeys.space)) {
+        if (Phaser.Input.Keyboard.JustDown(this.moveKeys.space) && !this.gameOver) {
             this.phase();
         }
         
@@ -372,19 +381,23 @@ class Level1 extends Phaser.Scene {
                 this.normalColliderToggles[i].active = false;
             }
             for(let i = 0; i < this.normalObjects.length; i++){
-                this.normalObjects[i].setActive(false).setVisible(false);
+                this.normalObjects[i].active = false
+                this.normalObjects[i].setVisible(false);
             }
             for(let i = 0; i < this.normalScenery.length; i++){
-                this.normalScenery[i].setActive(false).setVisible(false);
+                this.normalScenery[i].active = false
+                this.normalScenery[i].setVisible(false);
             }
             for(let i = 0; i < this.distortedColliderToggles.length; i++){
                 this.distortedColliderToggles[i].active = true;
             }
             for(let i = 0; i < this.distortedObjects.length; i++){    
-                this.distortedObjects[i].setActive(true).setVisible(true);
+                this.distortedObjects[i].active = true
+                this.distortedObjects[i].setVisible(true);
             }
             for(let i = 0; i < this.distortedScenery.length; i++){    
-                this.distortedScenery[i].setActive(true).setVisible(true);
+                this.distortedScenery[i].active = true
+                this.distortedScenery[i].setVisible(true);
             }
         }
         else {
@@ -393,19 +406,25 @@ class Level1 extends Phaser.Scene {
                 this.normalColliderToggles[i].active = true;
             }
             for(let i = 0; i < this.normalObjects.length; i++){
-                this.normalObjects[i].setActive(true).setVisible(true);
+                this.normalObjects[i].active = true
+                this.normalObjects[i].setVisible(true);
             }
             for(let i = 0; i < this.normalScenery.length; i++){
-                this.normalScenery[i].setActive(true).setVisible(true);
+                this.normalScenery[i].active = true
+                this.normalScenery[i].setVisible(true);
             }
             for(let i = 0; i < this.distortedColliderToggles.length; i++){
                 this.distortedColliderToggles[i].active = false;
             }
             for(let i = 0; i < this.distortedObjects.length; i++){    
-                this.distortedObjects[i].setActive(false).setVisible(false);
+                this.distortedObjects[i].active = false
+                
+                this.distortedObjects[i].setVisible(false);
+                console.log(this.distortedObjects[i]);
             }
             for(let i = 0; i < this.distortedScenery.length; i++){    
-                this.distortedScenery[i].setActive(false).setVisible(false);
+                this.distortedScenery[i].active = false
+                this.distortedScenery[i].setVisible(false);
             }
         }
         //only respawn the enemies if they are not dead
@@ -521,11 +540,14 @@ class Level1 extends Phaser.Scene {
     }
 
     //phyics callback for when any type of bullet hits a wall
-    //this should be basically the same as an enemy bullet collision, but the enemy doesnt disapear. 
+    //this should be basically the same as an enemy bullet cosd llision, but the enemy doesnt disapear. 
     wallHitCallback(bulletHit, wallHit) {
-        if(wallHit.active === true && bulletHit.active === true){
+        //console.log(bulletHit + "should be destored");
+        //console.log(wallHit);
+        //console.log(wallHit.layer.visible);
+        if(wallHit.visible === true && bulletHit.active === true )
             bulletHit.setActive(false).setVisible(false).destroy();
-        }
+        
     }
 
     //set button to pressed and destroy the bullet

@@ -54,7 +54,10 @@ class Menu extends Phaser.Scene {
             this.scene.start("Level1Scene");
         }
         else if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
-            //this.scene.start("Credits.js");   
+            //this.scene.start("creditsScene");   
+        }
+        else if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
+            this.scene.start("storyScene");
         }
     }
 }
