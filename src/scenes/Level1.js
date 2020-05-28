@@ -420,7 +420,6 @@ class Level1 extends Phaser.Scene {
                 this.distortedObjects[i].active = false
                 
                 this.distortedObjects[i].setVisible(false);
-                console.log(this.distortedObjects[i]);
             }
             for(let i = 0; i < this.distortedScenery.length; i++){    
                 this.distortedScenery[i].active = false
@@ -484,6 +483,7 @@ class Level1 extends Phaser.Scene {
                     health.y = enemyHit.y;
                     health.setActive(true).setVisible(true);
                     this.physics.add.collider(health, this.player, this.healthHitCallback, null, this);
+                    health.setVelocity(0,0)
                     enemyHit.dropped = true;
                     break;
                 }
@@ -498,7 +498,7 @@ class Level1 extends Phaser.Scene {
             enemyHit.health -= 1;
             //console.log('enemy at: ' + enemyHit.x + ', ' + enemyHit.y + ' has ' + enemyHit.health + 
                 //' remaining');
-            
+            enemyHit.setVelocity(0,0);
             //kill enemy if health <= 0
             if(enemyHit.health <= 0) {
                 enemyHit.setVelocity(0,0);
