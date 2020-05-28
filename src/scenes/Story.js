@@ -3,20 +3,28 @@ class Story extends Phaser.Scene {
         super("storyScene");
     }
 
-
+    preload(){
+        this.load.image('parchment', './assets/backgrounds/Parchment.png');
+    }
 
     create() {
+        this.add.image(0,0, 'parchment').setOrigin(0,0).setScale(2, 1.1);
         this.content = [
-            "You're a homeless orphan who scavenges the streets to survive.",
-            "While rummaging though some trash, you encounter an unloaded gun with...",
-            "a peculiar aura.",
-            "Upon picking it up, a ghost pops out of it.",
-            "When it realizes you can see it, it asks for your help.",
-            "Together, you travel between the physical and supernatural world,",
-            "vanquishing the spirits that wish ill upon both using ghostly bullets",
-            "created by your new friend.",
-            "Unfortunately, the police do not appreciate a child running around with a gun,",
-            "so they try to stop you..."
+            "You're a homeless orphan who scavenges the ",
+            "streets to survive. ",
+            "While rummaging though some trash, you encounter ",
+            "an unloaded gun with... ",
+            "a peculiar aura. ",
+            "Upon picking it up, a ghost pops out of it. ",
+            "When it realizes you can see it, it asks for ",
+            "your help. ",
+            "Together, you travel between the physical ",
+            "and supernatural world, vanquishing the ", 
+            "spirits that wish ill upon both using ",
+            "ghostly bullets created by your new friend. ",
+            "Unfortunately, the police do not appreciate ",
+            "a child running around with a gun, so they try ",
+            "to stop you... "
         ];
 
         this.line = [];
@@ -24,9 +32,9 @@ class Story extends Phaser.Scene {
         this.wordIndex = 0;
         this.lineIndex = 0;
 
-        this.wordDelay = 250;
+        this.wordDelay = 400;
         this.lineDelay = 1000;
-        this.text = this.add.text(32, 32, '', { font: "10px Arial", fill: "#19de65", boundsAlignH: "center", boundsAlignV: "middle" });
+        this.text = this.add.text(64, 32, '', { font: "10px Arial", fill: "#5c0000", boundsAlignH: "center", boundsAlignV: "middle" });
 
         
         this.nextLine();
@@ -101,6 +109,5 @@ class Story extends Phaser.Scene {
                 callbackScope: this,
             });
         }
-
     }
 }
