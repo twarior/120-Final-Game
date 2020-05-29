@@ -118,7 +118,9 @@ class Level1 extends Phaser.Scene {
         this.player.x = 64;
         this.player.y = 64;
         this.reticle.setCollideWorldBounds(true).setScale(1, 1).setOrigin(.5, .5);
-        this.player.health = 3;
+        this.player.health = 5;
+        this.player.invincible = false;
+        this.player.justFired = false;
 
         //add bulllet groups for both player and enemies
         this.playerBullets = this.physics.add.group({classType: Bullet, runChildUpdate: true});
@@ -168,7 +170,8 @@ class Level1 extends Phaser.Scene {
         }
 
         //set camera zoom
-        //this.cameras.main.zoom = 4;
+        this.cameras.main.zoom = 4;
+        this.playerHUD();
 
         //create object for input with wasd keys and menu buttons up and down arrow
         this.moveKeys = this.input.keyboard.addKeys({
@@ -216,7 +219,7 @@ class Level1 extends Phaser.Scene {
             // Get bullet from bullets group
             var bullet = this.playerBullets.get().setActive(true).setVisible(true);
     
-            if (bullet)
+            if (bullet && !this.player.justFired)
             {  
                 for(let i = 0; i < this.enemies.length; i ++){
                     this.physics.add.collider(this.enemies[i], bullet, this.enemyHitCallback, null, this);
@@ -238,6 +241,15 @@ class Level1 extends Phaser.Scene {
                 this.physics.add.collider(bullet, this.button2, this.buttonHitCallback, null, this);
                 bullet.fire(this.player, this.reticle);
                 this.gunshotSFX.play();
+                this.player.justFired = true;
+                this.playerNoFire = this.time.addEvent({
+                    delay: 1500,
+                    callback: ()=>{
+                        this.player.justFired = false;
+                    },
+                    loop: false
+                 })
+                this.UICamera.ignore(bullet);
             }
         }, this);
     }
@@ -485,6 +497,7 @@ class Level1 extends Phaser.Scene {
                     this.physics.add.collider(health, this.player, this.healthHitCallback, null, this);
                     health.setVelocity(0,0)
                     enemyHit.dropped = true;
+                    this.UICamera.ignore(health);
                     break;
                 }
             }
@@ -514,28 +527,63 @@ class Level1 extends Phaser.Scene {
     //physics callback for when an enemy bullet hits the player
     playerHitCallback(playerHit, bulletHit) {
         // Reduce health of player
-        if (bulletHit.active === true && playerHit.active === true) {
+        if (bulletHit.active === true && playerHit.active === true && !this.player.invincible) {
             playerHit.health = playerHit.health - 1;
-            console.log("Player hp: ", playerHit.health);
             bulletHit.setActive(false).setVisible(false).destroy();
+            if(this.healthIcon05.active == true)
+                this.healthIcon05.setActive(false).setVisible(false);
+            else if(this.healthIcon04.active == true)
+                this.healthIcon04.setActive(false).setVisible(false);  
+            else if(this.healthIcon03.active == true)
+                this.healthIcon03.setActive(false).setVisible(false);
+            else if(this.healthIcon02.active == true)
+                this.healthIcon02.setActive(false).setVisible(false);
+            else if(this.healthIcon01.active == true)
+                this.healthIcon01.setActive(false).setVisible(false);  
             if (playerHit.health <=0 ){
                 // this.add.text(playerHit.x, playerHit.y, 'GAME OVER', menuConfig).setOrigin(.5);
                 console.log('GAME OVER');
             }
             this.playerHitSFX.play();
+            this.player.invincible = true;
+            this.playerNoHit = this.time.addEvent({
+                delay: 1500,
+                callback: ()=>{
+                    this.player.invincible = false;
+                },
+                loop: false
+            })
         }
+        
     }
 
     //physics callback for when an enemy punches the player
     playerHitMeleeCallback(playerHit, enemyHit) {
-        if(playerHit.active === true && enemyHit.active === true){
+        if(playerHit.active === true && enemyHit.active === true && !this.player.invincible){
             playerHit.health -= 1;
-            console.log("Player hp: ", playerHit.health);
+            if(this.healthIcon05.active == true)
+                this.healthIcon05.setActive(false).setVisible(false);
+            else if(this.healthIcon04.active == true)
+                this.healthIcon04.setActive(false).setVisible(false);  
+            else if(this.healthIcon03.active == true)
+                this.healthIcon03.setActive(false).setVisible(false);
+            else if(this.healthIcon02.active == true)
+                this.healthIcon02.setActive(false).setVisible(false);
+            else if(this.healthIcon01.active == true)
+                this.healthIcon01.setActive(false).setVisible(false);  
             if (playerHit.health <=0 ){
                 // this.add.text(playerHit.x, playerHit.y, 'GAME OVER', menuConfig).setOrigin(.5);
                 console.log('GAME OVER');
             }
             this.playerHitSFX.play();
+            this.player.invincible = true;
+            this.playerNoHit = this.time.addEvent({
+                delay: 1500,
+                callback: ()=>{
+                    this.player.invincible = false;
+                },
+                loop: false
+            })
         }
     }
 
@@ -561,8 +609,17 @@ class Level1 extends Phaser.Scene {
     //phyics callback for health pickup object
     healthHitCallback(healthHit, playerHit){
         if(healthHit.active === true && playerHit.active === true){
-            playerHit.health +=1;
-            console.log("Player hp: ", playerHit.health);
+            if(playerHit.health < 5){
+                playerHit.health +=1;
+                if(this.healthIcon02.active == false)
+                    this.healthIcon02.setActive(true).setVisible(true);
+                else if(this.healthIcon03.active == false)
+                    this.healthIcon03.setActive(true).setVisible(true);  
+                else if(this.healthIcon04.active == false)
+                    this.healthIcon04.setActive(true).setVisible(true);
+                else if(this.healthIcon05.active == false)
+                    this.healthIcon05.setActive(true).setVisible(true); 
+            }   
         }
         healthHit.setActive(false).setVisible(false);
     }
@@ -579,7 +636,7 @@ class Level1 extends Phaser.Scene {
 
             if (bullet){
                 bullet.fire(enemy, player);
-                
+                this.UICamera.ignore(bullet);
                 // Add collider between bullet and player
                 gameObject.physics.add.collider(player, bullet, this.playerHitCallback, null, this);
                 //collider between walls depending on whats active
@@ -615,6 +672,23 @@ class Level1 extends Phaser.Scene {
             }
         }
         //console.log('doors open wide');
+    }
+
+    playerHUD(){
+        this.playerHealthUI = this.add.group();{
+            this.healthIcon01 = this.add.image(64, 64, 'health').setOrigin(0,0).setScrollFactor(0).setScale(4);
+            this.healthIcon02 = this.add.image(64, 128, 'health').setOrigin(0,0).setScrollFactor(0).setScale(4);
+            this.healthIcon03 = this.add.image(64, 192, 'health').setOrigin(0,0).setScrollFactor(0).setScale(4);
+            this.healthIcon04 = this.add.image(64, 256, 'health').setOrigin(0,0).setScrollFactor(0).setScale(4);
+            this.healthIcon05 = this.add.image(64, 320, 'health').setOrigin(0,0).setScrollFactor(0).setScale(4);
+        }
+        this.cameras.main.ignore(this.playerHealthUI);
+        this.cameras.main.startFollow(this.player);
+        this.UICamera = this.cameras.add(0,0, game.config.width, game.config.height);
+        this.UICamera.ignore([this.player, this.reticle, this.enemies, this.distEnemies, 
+            this.distortedObjects,this.distortedScenery, this.normalObjects, this.normalScenery, 
+            this.playerBullets, this.enemyBullets, this.buttons]);
+        
     }
 
     playerWin() {

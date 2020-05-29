@@ -37,7 +37,12 @@ class Menu extends Phaser.Scene {
         //     .setOrigin(.5);
         // this.add.text(centerX, centerY + 2*textSpacer, 'Press SPACE to Start', menuConfig)
         //     .setOrigin(.5);
-        this.add.image(0, 0, 'menu').setOrigin(0,0);
+        this.menuScale = 4;
+        this.menu = this.add.image(0, 0, 'menu').setOrigin(0,0).setScale(4);
+        while(this.menu.displayHeight > game.config.height){
+            this.menuScale -= .1;
+            this.menu.setScale(this.menuScale, this.menuScale);
+        }
 
         // define keys
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
