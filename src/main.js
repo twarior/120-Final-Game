@@ -17,10 +17,10 @@
 
 let config = {
     type: Phaser.CANVAS,
-    width: 400,
-    height: 300,
+    width: window.innerWidth * window.devicePixelRatio, 
+    height: window.innerHeight * window.devicePixelRatio,
     pixelArt: true,
-    zoom: 4,
+    zoom: 1,
     physics: {
         default: 'arcade',
         arcade:{

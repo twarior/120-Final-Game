@@ -168,7 +168,7 @@ class Level1 extends Phaser.Scene {
         }
 
         //set camera zoom
-        //this.cameras.main.zoom = 4;
+        this.cameras.main.zoom = 4;
         this.playerHUD();
 
         //create object for input with wasd keys and menu buttons up and down arrow
@@ -650,17 +650,19 @@ class Level1 extends Phaser.Scene {
 
     playerHUD(){
         this.playerHealthUI = this.add.group();{
-            this.healthIcon01 = this.add.image(8, 8, 'health').setOrigin(0,0).setScrollFactor(0);
-            this.healthIcon02 = this.add.image(8, 16, 'health').setOrigin(0,0).setScrollFactor(0);
-            this.healthIcon03 = this.add.image(8, 24, 'health').setOrigin(0,0).setScrollFactor(0);
-            this.healthIcon04 = this.add.image(8, 32, 'health').setOrigin(0,0).setScrollFactor(0);
-            this.healthIcon05 = this.add.image(8, 40, 'health').setOrigin(0,0).setScrollFactor(0);
+            this.healthIcon01 = this.add.image(64, 64, 'health').setOrigin(0,0).setScrollFactor(0).setScale(4);
+            this.healthIcon02 = this.add.image(64, 128, 'health').setOrigin(0,0).setScrollFactor(0).setScale(4);
+            this.healthIcon03 = this.add.image(64, 192, 'health').setOrigin(0,0).setScrollFactor(0).setScale(4);
+            this.healthIcon04 = this.add.image(64, 256, 'health').setOrigin(0,0).setScrollFactor(0).setScale(4);
+            this.healthIcon05 = this.add.image(64, 320, 'health').setOrigin(0,0).setScrollFactor(0).setScale(4);
         }
         this.cameras.main.ignore(this.playerHealthUI);
         this.cameras.main.startFollow(this.player);
         this.UICamera = this.cameras.add(0,0, game.config.width, game.config.height);
-        this.UICamera.ignore([this.player, this.reticle, this.enemies, this.distEnemies, this.distortedObjects,
-            this.distortedScenery, this.normalObjects, this.normalScenery, this.playerBullets, this.enemyBullets]);
+        this.UICamera.ignore([this.player, this.reticle, this.enemies, this.distEnemies, 
+            this.distortedObjects,this.distortedScenery, this.normalObjects, this.normalScenery, 
+            this.playerBullets, this.enemyBullets, this.buttons]);
+        
     }
 
     playerWin() {

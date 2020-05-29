@@ -8,7 +8,14 @@ class Story extends Phaser.Scene {
     }
 
     create() {
-        this.add.image(0,0, 'parchment').setOrigin(0,0).setScale(2, 1.1);
+        this.parchmentScale = 4;
+        this.parchment = this.physics.add.sprite(0,0, 'parchment').setOrigin(0, 0).setScale(4, 4);
+        this.parchment.x = (game.config.width/2) - (this.parchment.displayWidth/2);
+        while(this.parchment.displayHeight > game.config.height){
+            this.parchmentScale -= .1;
+            this.parchment.setScale(this.parchmentScale, this.parchmentScale);
+        }
+        console.log(this.parchment.displayHeight + " " + game.config.height);
         this.content = [
             "You're a homeless orphan who scavenges the ",
             "streets to survive. ",
@@ -34,7 +41,8 @@ class Story extends Phaser.Scene {
 
         this.wordDelay = 400;
         this.lineDelay = 1000;
-        this.text = this.add.text(64, 32, '', { font: "10px Arial", fill: "#5c0000", boundsAlignH: "center", boundsAlignV: "middle" });
+        this.text = this.add.text(this.parchment.x + this.parchment.displayWidth/6, 64, '', 
+        { font: "18px Arial", fill: "#5c0000", boundsAlignH: "center", boundsAlignV: "middle" });
 
         
         this.nextLine();
