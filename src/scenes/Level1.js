@@ -6,6 +6,14 @@ class Level1 extends Phaser.Scene {
         //load assets here
         this.load.image('playerSprite', './assets/sprites/Main_Char_Bang_Bang.png');
         this.load.image('enemySprite', './assets/enemies/badSmiley.png');
+        this.load.image('ghost1', './assets/enemies/Ghost1.png');
+        this.load.image('ghost2', './assets/enemies/Ghost2.png');
+        this.load.image('ghost3', './assets/enemies/Ghost3.png');
+        this.load.image('ghost4', './assets/enemies/Ghost4.png');
+        this.load.image('ghost5', './assets/enemies/Ghost5.png');
+        this.load.image('ghost6', './assets/enemies/Ghost6.png');
+        this.load.image('ghost7', './assets/enemies/Ghost7.png');
+        this.load.image('ghost8', './assets/enemies/Ghost8.png');
         this.load.image('target', './assets/sprites/reticle.png');
         this.load.image('background', './assets/backgrounds/background.png');
         this.load.image('normalWall', './assets/sprites/normWall.png');
@@ -127,9 +135,10 @@ class Level1 extends Phaser.Scene {
         this.enemyBullets = this.physics.add.group({classType: Bullet, runChildUpdate: true});
 
         //enemies
-        this.enemies = [this.physics.add.sprite(300, 216, 'enemySprite').setCollideWorldBounds(true),
-            this.physics.add.sprite(920, 380, 'enemySprite').setCollideWorldBounds(true)
-            ];
+        this.enemies = [];
+        this.enemies.push(this.physics.add.sprite(300, 216, 'enemySprite').setCollideWorldBounds(true));
+        this.enemies.push(this.physics.add.sprite(920, 380, 'enemySprite').setCollideWorldBounds(true));
+        
         for(let i = 0; i < this.enemies.length; i += 1){
             this.enemies[i].health = 3;
             this.enemies[i].lastFired = i*500;
@@ -137,9 +146,10 @@ class Level1 extends Phaser.Scene {
         }
 
         // //dist enemies
-        this.distEnemies = [this.physics.add.sprite(300, 300, 'enemySprite').setCollideWorldBounds(true),
-            this.physics.add.sprite(920, 380, 'enemySprite').setCollideWorldBounds(true)
-            ];
+        this.ghostSprites = ['ghost1', 'ghost2', 'ghost3', 'ghost4', 'ghost5', 'ghost6', 'ghost7', 'ghost8']
+        this.distEnemies = [];
+        this.distEnemies.push(this.physics.add.sprite(300, 300, this.ghostSprites[Math.floor(Math.random() * this.ghostSprites.length)]).setCollideWorldBounds(true));
+        this.distEnemies.push(this.physics.add.sprite(920, 380, this.ghostSprites[Math.floor(Math.random() * this.ghostSprites.length)]).setCollideWorldBounds(true));
         
         for(let i = 0; i  < this.distEnemies.length; i += 1) { 
             this.distEnemies[i].health = 3;
