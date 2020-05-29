@@ -10,6 +10,9 @@
 //app worked well together so I didn't need much additional code. 
 //https://github.com/nathanaltice/Mappy/blob/master/src/Scenes/TiledPlatform.js
 //The additional code it did need for the physics systems to work I found here on Nathan's Github
+//
+//https://phaser.io/examples/v2/text/display-text-word-by-word
+//This was referenced for the openening story sequence to get the words to appear one after the other
 
 
 let config = {
