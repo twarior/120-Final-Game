@@ -119,6 +119,8 @@ class Level1 extends Phaser.Scene {
         this.player.y = 64;
         this.reticle.setCollideWorldBounds(true).setScale(1, 1).setOrigin(.5, .5);
         this.player.health = 5;
+        this.player.invincible = false;
+        this.player.justFired = false;
 
         //add bulllet groups for both player and enemies
         this.playerBullets = this.physics.add.group({classType: Bullet, runChildUpdate: true});
@@ -217,7 +219,7 @@ class Level1 extends Phaser.Scene {
             // Get bullet from bullets group
             var bullet = this.playerBullets.get().setActive(true).setVisible(true);
     
-            if (bullet)
+            if (bullet && !this.player.justFired)
             {  
                 for(let i = 0; i < this.enemies.length; i ++){
                     this.physics.add.collider(this.enemies[i], bullet, this.enemyHitCallback, null, this);
@@ -239,6 +241,14 @@ class Level1 extends Phaser.Scene {
                 this.physics.add.collider(bullet, this.button2, this.buttonHitCallback, null, this);
                 bullet.fire(this.player, this.reticle);
                 this.gunshotSFX.play();
+                this.player.justFired = true;
+                this.playerNoFire = this.time.addEvent({
+                    delay: 1500,
+                    callback: ()=>{
+                        this.player.justFired = false;
+                    },
+                    loop: false
+                 })
                 this.UICamera.ignore(bullet);
             }
         }, this);
@@ -517,7 +527,7 @@ class Level1 extends Phaser.Scene {
     //physics callback for when an enemy bullet hits the player
     playerHitCallback(playerHit, bulletHit) {
         // Reduce health of player
-        if (bulletHit.active === true && playerHit.active === true) {
+        if (bulletHit.active === true && playerHit.active === true && !this.player.invincible) {
             playerHit.health = playerHit.health - 1;
             bulletHit.setActive(false).setVisible(false).destroy();
             if(this.healthIcon05.active == true)
@@ -535,13 +545,21 @@ class Level1 extends Phaser.Scene {
                 console.log('GAME OVER');
             }
             this.playerHitSFX.play();
+            this.player.invincible = true;
+            this.playerNoHit = this.time.addEvent({
+                delay: 1500,
+                callback: ()=>{
+                    this.player.invincible = false;
+                },
+                loop: false
+            })
         }
         
     }
 
     //physics callback for when an enemy punches the player
     playerHitMeleeCallback(playerHit, enemyHit) {
-        if(playerHit.active === true && enemyHit.active === true){
+        if(playerHit.active === true && enemyHit.active === true && !this.player.invincible){
             playerHit.health -= 1;
             if(this.healthIcon05.active == true)
                 this.healthIcon05.setActive(false).setVisible(false);
@@ -558,6 +576,14 @@ class Level1 extends Phaser.Scene {
                 console.log('GAME OVER');
             }
             this.playerHitSFX.play();
+            this.player.invincible = true;
+            this.playerNoHit = this.time.addEvent({
+                delay: 1500,
+                callback: ()=>{
+                    this.player.invincible = false;
+                },
+                loop: false
+            })
         }
     }
 
