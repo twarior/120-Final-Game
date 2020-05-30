@@ -15,19 +15,24 @@ class Level1 extends Phaser.Scene {
         this.load.image('ghost7', './assets/enemies/Ghost7.png');
         this.load.image('ghost8', './assets/enemies/Ghost8.png');
         this.load.image('target', './assets/sprites/reticle.png');
-        this.load.image('background', './assets/backgrounds/background.png');
         this.load.image('normalWall', './assets/sprites/normWall.png');
         this.load.image('distortedWall', './assets/sprites/distWall.png');
         this.load.image('bullet', './assets/sprites/bullet.png');
         this.load.image('health', './assets/sprites/healthSprite.png');
         this.load.image('closedDoor', './assets/sprites/closedDoor.png');
         this.load.image('button', './assets/sprites/button.png');
+        this.load.atlas('cop1Atlas', './assets/textureAtlases/cop1TextureAtlas.png',
+        './assets/textureAtlases/cop1TextureAtlas.json');
+        this.load.atlas('cop2Atlas', './assets/textureAtlases/cop2TextureAtlas.png',
+        './assets/textureAtlases/cop2TextureAtlas.json');
+        this.load.atlas('cop3Atlas', './assets/textureAtlases/cop3TextureAtlas.png',
+        './assets/textureAtlases/cop3TextureAtlas.json');
         this.load.audio('sfx_gunshot', './assets/sfx/gunshot03.mp3');
         this.load.audio('sfx_playerHit', './assets/sfx/playerHit03.mp3');
         this.load.audio('sfx_phase', './assets/sfx/transitionMid.mp3');
         this.load.audio('sfx_enemyHit', './assets/sfx/Damage.mp3');
-        this.load.image('bothWorldsSprites', './assets/tilemaps/Both_Maps_spritesheet.png');
-	    this.load.tilemapTiledJSON('bothWorldsMap', './assets/tilemaps/Both_Maps.json');
+        this.load.image('mapAssetsTilemap', './assets/tilemaps/mapAssetsTilemap.png');
+		this.load.tilemapTiledJSON('bothWorldsMap', './assets/tilemaps/bothMapsWithObjects.json');
     }
 
 //=====================================================================================================
@@ -35,7 +40,7 @@ class Level1 extends Phaser.Scene {
     create(){
         //create the tilemaps and the layers as constant objects so we can access them
         const map = this.make.tilemap({ key: 'bothWorldsMap' });
-		const tileset = map.addTilesetImage('Both_Maps_spritesheet', 'bothWorldsSprites');
+		const tileset = map.addTilesetImage('mapAssetsTilemap', 'mapAssetsTilemap');
 		
 		const normalBackground = map.createStaticLayer('Norm_Background', tileset);
 		const normalGates = map.createStaticLayer('Norm_Gates', tileset);
@@ -74,8 +79,9 @@ class Level1 extends Phaser.Scene {
         this.gameOver = false;
 
         //add player, and reticle sprites
-        this.player = this.physics.add.sprite(game.config.width/2, game.config.height/2, 'playerSprite');
-        this.reticle = this.physics.add.sprite(game.config.width/2, game.config.height/2, 'target');
+        const p1Spawn = map.findObject("P1 Spawn", obj => obj.name === "P1 Spawn");
+        this.player = this.physics.add.sprite(p1Spawn.x, p1Spawn.y, 'playerSprite');
+        this.reticle = this.physics.add.sprite(p1Spawn.x, p1Spawn.y, 'target');
 
         //set the collisions to true for all collidable objects then set the distorted world to
         //invisable and inactive 
@@ -136,8 +142,8 @@ class Level1 extends Phaser.Scene {
 
         //enemies
         this.enemies = [];
-        this.enemies.push(this.physics.add.sprite(300, 216, 'enemySprite').setCollideWorldBounds(true));
-        this.enemies.push(this.physics.add.sprite(920, 380, 'enemySprite').setCollideWorldBounds(true));
+        this.enemies.push(this.physics.add.sprite(300, 216, 'cop1Atlas').setCollideWorldBounds(true));
+        this.enemies.push(this.physics.add.sprite(920, 380, 'cop2Atlas').setCollideWorldBounds(true));
         
         for(let i = 0; i < this.enemies.length; i += 1){
             this.enemies[i].health = 3;
@@ -339,6 +345,7 @@ class Level1 extends Phaser.Scene {
         this.playerWin();
         this.playerLose();
         this.restartGame();
+        this.enemyRotation();
     }
 
 //=======================================================================================================
@@ -742,6 +749,25 @@ class Level1 extends Phaser.Scene {
             }
             else if (this.arrowKeys.downArrow.isDown){
                 this.scene.start("menuScene");
+            }
+        }
+    }
+
+    enemyRotation() {
+        //console.log(this.enemies[0].rotation);
+        for(let i = 0; i < this.enemies.length; i++){
+            
+            if(this.enemies[i].rotation < .8 && this.enemies[i].rotation > -.8){
+                this.enemies[i].setFrame("Cop_Right");
+            }
+            else if(this.enemies[i].rotation > -2.35 && this.enemies[i].rotation < -.8){
+                this.enemies[i].setFrame("Cop_Back");
+            }
+            else if(this.enemies[i].rotation < -2.35 || this.enemies[i].rotation > 2.35){
+                this.enemies[i].setFrame("Cop_Left");
+            }
+            else if(this.enemies[i].rotation < 2.35 && this.enemies[i].rotation > .8){
+                this.enemies[i].setFrame("Cop_Front");
             }
         }
     }
