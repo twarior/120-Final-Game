@@ -54,9 +54,15 @@ class Level1 extends Phaser.Scene {
 		const distortedWell = map.createStaticLayer('Dist_Well', tileset);
 		const distortedFountain =  map.createStaticLayer('Dist_Fountain', tileset);
         const distortedHoles =  map.createStaticLayer('Dist_Holes', tileset);
+        var door1 = map.createDynamicLayer('Door1', tileset);
+        const button1Door1 = map.createStaticLayer('Button1_Door1', tileset);
+        const button2Door1 = map.createStaticLayer('Button2_Door1', tileset);
         
+        this.door1Update = door1;
+
         //create arrays to store the collidiable objects and the non
-        this.normalObjects = [normalGates, normalGraves, normalMausoleum, normalFountain];
+        this.normalObjects = [normalGates, normalGraves, normalMausoleum, normalFountain, door1,
+            button1Door1, button2Door1];
         this.normalScenery = [normalBackground, normalDucks];
         this.distortedObjects = [distortedGates, distortedGraves, distortedWell, distortedFountain, 
             distortedHoles];
@@ -101,6 +107,9 @@ class Level1 extends Phaser.Scene {
         this.normalGravesToggle = this.physics.add.collider(this.player, normalGraves);
         this.normalMausoleumToggle = this.physics.add.collider(this.player, normalMausoleum);
         this.normalFountainToggle = this.physics.add.collider(this.player, normalFountain);
+        this.door1Toggle = this.physics.add.collider(this.player, door1);
+        this.button1Door1Toggle = this.physics.add.collider(this.player, button1Door1);
+        this.button2Door1Toggle = this.physics.add.collider(this.player, button2Door1);
         this.distortedGatesToggle = this.physics.add.collider(this.player, distortedGates);
         this.distortedGravesToggles = this.physics.add.collider(this.player, distortedGraves);
         this.distortedHolesToggle = this.physics.add.collider(this.player, distortedHoles);
@@ -108,7 +117,7 @@ class Level1 extends Phaser.Scene {
         this.distortedFountainToggle = this.physics.add.collider(this.player, distortedFountain);
         //put those in arrays for safe keeping
         this.normalColliderToggles = [this.normalGatesToggle, this.normalGravesToggle, 
-            this.normalMausoleumToggle, this.normalFountainToggle];
+            this.normalMausoleumToggle, this.normalFountainToggle, this.door1Toggle];
         this.distortedColliderToggles = [this.distortedGatesToggle, this.distortedGravesToggles, 
             this.distortedHolesToggle, this.distortedWellToggle, this.distortedFountainToggle];
         //turn off the colliders in the distorted world
@@ -169,14 +178,13 @@ class Level1 extends Phaser.Scene {
             this.distEnemies[i].setVisible(false);
         }
 
-        this.doors = [];
-        this.buttons = this.physics.add.staticGroup();
-
-        this.button1 = this.buttons.create(690, 690, 'button').setScale(2).setRotation(1.5708).refreshBody();
-        this.button2 = this.buttons.create(960, 960, 'button').setScale(2).setRotation(1.5708).refreshBody();
-        // this.button1.pressed = false;
-        // this.button2.pressed = false;
-        // this.opened = false;
+        
+        //button and door groups
+        this.door1Buttons = [];
+        this.door1Button1 = false;
+        this.door1Button2 = false;
+        this.door1Buttons.push(this.door1Button1, this.door1Button2);
+        this.opened = false;
 
         //make health drop group
         this.healthDrops = [];
@@ -233,7 +241,8 @@ class Level1 extends Phaser.Scene {
                 return;
     
             // Get bullet from bullets group
-            var bullet = this.playerBullets.get().setActive(true).setVisible(true);
+            if(!this.player.justFired)
+                var bullet = this.playerBullets.get().setActive(true).setVisible(true);
     
             if (bullet && !this.player.justFired)
             {  
@@ -245,16 +254,19 @@ class Level1 extends Phaser.Scene {
                 } 
                 //stop the bullets on the present walls 
                 for(let i = 0; i < this.normalObjects.length; i++){
-                    if(this.inNormalWorld)
-                        this.physics.add.collider(bullet, this.normalObjects[i], this.wallHitCallback, null, this);
+                    if(this.inNormalWorld && this.normalObjects[i] != button1Door1 
+                        && this.normalObjects[i] != button2Door1){
+                        this.physics.add.collider(bullet, this.normalObjects[i], this.wallHitCallback,
+                             null, this);
+                    }
                 }
                 for(let i = 0; i < this.distortedObjects.length; i++){
                     if(!this.inNormalWorld)
                         this.physics.add.collider(bullet, this.distortedObjects[i], this.wallHitCallback, null, this);
                 }
                 //need to add wall colliders here
-                this.physics.add.collider(bullet, this.button1, this.buttonHitCallback, null, this);
-                this.physics.add.collider(bullet, this.button2, this.buttonHitCallback, null, this);
+                this.physics.add.collider(bullet, button1Door1, this.buttonHitCallback, null, this);
+                this.physics.add.collider(bullet, button2Door1, this.buttonHitCallback, null, this);
                 bullet.fire(this.player, this.reticle);
                 this.gunshotSFX.play();
                 this.player.justFired = true;
@@ -302,8 +314,8 @@ class Level1 extends Phaser.Scene {
 
         //makes reticle move with player
         if(!this.gameOver){
-            this.reticle.body.velocity.x = this.player.body.velocity.x;
-            this.reticle.body.velocity.y = this.player.body.velocity.y;
+            this.reticle.body.velocity.x = 0;
+            this.reticle.body.velocity.y = 0;
         }
 
         // Constrain velocity of player
@@ -313,7 +325,7 @@ class Level1 extends Phaser.Scene {
         this.constrainReticle(this.reticle, this.player, 128);
 
         //points the player at the reticle
-        this.player.rotation = Phaser.Math.Angle.Between(this.player.x, this.player.y, 
+        this.whereToRotatePlayer = Phaser.Math.Angle.Between(this.player.x, this.player.y, 
             this.reticle.x, this.reticle.y)
 
         //phase the player if they press space
@@ -336,9 +348,9 @@ class Level1 extends Phaser.Scene {
         }
         //puzzles m8
         
-        if(this.button2.pressed == true && this.button1.pressed == true && this.opened == false){
+        if(this.door1Button1 == true && this.door1Button2 == true && this.opened == false){
             //console.log('both buttons pressed');
-            this.openDoors();
+            this.openDoors(this.door1Update);
             this.opened = true;
         }
         //console.log(this.player.x +" "+ this.player.y);
@@ -617,10 +629,19 @@ class Level1 extends Phaser.Scene {
 
     //set button to pressed and destroy the bullet
     buttonHitCallback(bulletHit, buttonHit){
-        if(buttonHit.active === true && bulletHit.active === true){
+        console.log("in button hit callback");
+        console.log(buttonHit);
+        if(buttonHit.visible === true && bulletHit.active === true){
+            if(buttonHit.layer.name == "Button1_Door1"){
+                console.log("was button 1");
+                this.door1Button1 = true;
+            }
+            else if(buttonHit.layer.name == "Button2_Door1"){
+                console.log("was button 2");
+                this.door1Button2 = true;
+            }
             bulletHit.setActive(false).setVisible(false).destroy();
         }
-        buttonHit.pressed = true;
     }
 
     //phyics callback for health pickup object
@@ -682,13 +703,9 @@ class Level1 extends Phaser.Scene {
         enemy.setVelocity(velocityX, velocityY);
     }
 
-    openDoors(){
-        for(let i = 0; i < 100; i++) {
-            for(let i = 0; i < this.doors.length; i ++){
-                this.doors[i].x -= 10;
-            }
-        }
-        //console.log('doors open wide');
+    openDoors(door){       
+        door.y -= 48;
+        console.log('doors open wide');
     }
 
     playerHUD(){
@@ -704,7 +721,7 @@ class Level1 extends Phaser.Scene {
         this.UICamera = this.cameras.add(0,0, game.config.width, game.config.height);
         this.UICamera.ignore([this.player, this.reticle, this.enemies, this.distEnemies, 
             this.distortedObjects,this.distortedScenery, this.normalObjects, this.normalScenery, 
-            this.playerBullets, this.enemyBullets, this.buttons]);
+            this.playerBullets, this.enemyBullets]);
         
     }
 
@@ -769,6 +786,21 @@ class Level1 extends Phaser.Scene {
             else if(this.enemies[i].rotation < 2.35 && this.enemies[i].rotation > .8){
                 this.enemies[i].setFrame("Cop_Front");
             }
+        }
+    }
+
+    playerRotation(){
+        if(this.enemies[i].rotation < .8 && this.enemies[i].rotation > -.8){
+            this.enemies[i].setFrame("Cop_Right");
+        }
+        else if(this.enemies[i].rotation > -2.35 && this.enemies[i].rotation < -.8){
+            this.enemies[i].setFrame("Cop_Back");
+        }
+        else if(this.enemies[i].rotation < -2.35 || this.enemies[i].rotation > 2.35){
+            this.enemies[i].setFrame("Cop_Left");
+        }
+        else if(this.enemies[i].rotation < 2.35 && this.enemies[i].rotation > .8){
+            this.enemies[i].setFrame("Cop_Front");
         }
     }
 

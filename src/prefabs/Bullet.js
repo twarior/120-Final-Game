@@ -27,7 +27,7 @@ class Bullet extends Phaser.GameObjects.Sprite {
             this.ySpeed = -this.speed*Math.cos(this.direction);
         }
 
-        this.rotation = shooter.rotation; // angle bullet with shooters rotation
+        this.rotation = Phaser.Math.Angle.Between(shooter.x, shooter.y, target.x, target.y); // angle bullet with shooters rotation
         this.born = 0; // Time since new bullet spawned
     }
 
