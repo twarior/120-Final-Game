@@ -58,6 +58,8 @@ class Level1 extends Phaser.Scene {
         const button1Door1 = map.createStaticLayer('Button1_Door1', tileset);
         const button2Door1 = map.createStaticLayer('Button2_Door1', tileset);
         
+
+
         this.door1Update = door1;
 
         //create arrays to store the collidiable objects and the non
@@ -150,9 +152,17 @@ class Level1 extends Phaser.Scene {
         this.enemyBullets = this.physics.add.group({classType: Bullet, runChildUpdate: true});
 
         //enemies
+        this.copSprites = ['cop1Atlas', 'cop2Atlas', 'cop3Atlas'];
+        this.normEnemySpawns = map.createFromObjects("Norm_Enemies", "normEnemySpawn", {
+            key: 'ghost1',
+            alpha: 0,
+        });
         this.enemies = [];
-        this.enemies.push(this.physics.add.sprite(300, 216, 'cop1Atlas').setCollideWorldBounds(true));
-        this.enemies.push(this.physics.add.sprite(920, 380, 'cop2Atlas').setCollideWorldBounds(true));
+        for(let i = 0; i < this.normEnemySpawns.length; i++){
+            let enemy = this.physics.add.sprite(this.normEnemySpawns[i].x, this.normEnemySpawns[i].y, 
+                this.copSprites[Math.floor(Math.random() * this.copSprites.length)]);
+            this.enemies.push(enemy);
+        }
         
         for(let i = 0; i < this.enemies.length; i += 1){
             this.enemies[i].health = 3;
@@ -161,10 +171,17 @@ class Level1 extends Phaser.Scene {
         }
 
         // //dist enemies
-        this.ghostSprites = ['ghost1', 'ghost2', 'ghost3', 'ghost4', 'ghost5', 'ghost6', 'ghost7', 'ghost8']
+        this.ghostSprites = ['ghost1', 'ghost2', 'ghost3', 'ghost4', 'ghost5', 'ghost6', 'ghost7', 'ghost8'];
+        this.distEnemySpawns = map.createFromObjects("Dist_Enemies", "distEnemySpawn", {
+            key: 'ghost1',
+            alpha: 0,  
+        });
         this.distEnemies = [];
-        this.distEnemies.push(this.physics.add.sprite(300, 300, this.ghostSprites[Math.floor(Math.random() * this.ghostSprites.length)]).setCollideWorldBounds(true));
-        this.distEnemies.push(this.physics.add.sprite(920, 380, this.ghostSprites[Math.floor(Math.random() * this.ghostSprites.length)]).setCollideWorldBounds(true));
+        for(let i = 0; i < this.distEnemySpawns.length; i++){
+            let enemy = this.physics.add.sprite(this.distEnemySpawns[i].x, this.distEnemySpawns[i].y, 
+                this.ghostSprites[Math.floor(Math.random() * this.ghostSprites.length)]);
+            this.distEnemies.push(enemy);
+        }
         
         for(let i = 0; i  < this.distEnemies.length; i += 1) { 
             this.distEnemies[i].health = 3;
