@@ -39,7 +39,7 @@ class Story extends Phaser.Scene {
         this.wordIndex = 0;
         this.lineIndex = 0;
 
-        this.wordDelay = 400;
+        this.wordDelay = 100;
         this.lineDelay = 1000;
         this.text = this.add.text(this.parchment.x + this.parchment.displayWidth/6, 64, '', 
         { font: "18px Arial", fill: "#5c0000", boundsAlignH: "center", boundsAlignV: "middle" });
@@ -76,7 +76,7 @@ class Story extends Phaser.Scene {
         }
 
         //  Split the current line on spaces, so one word per array element
-        this.line = this.content[this.lineIndex].split(' ');
+        this.line = this.content[this.lineIndex].split('');
 
         //  Reset the word index to zero (the first word in the line)
         this.wordIndex = 0;
