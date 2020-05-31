@@ -5,6 +5,8 @@ class Level1 extends Phaser.Scene {
     preload(){
         //load assets here
         this.load.image('playerSprite', './assets/sprites/Main_Char_Bang_Bang.png');
+        this.load.atlas('mainCharAtlas', './assets/textureAtlases/mainCharTextureAtlas.png',
+            './assets/textureAtlases/mainCharTextureAtlas.json');
         this.load.image('enemySprite', './assets/enemies/badSmiley.png');
         this.load.image('ghost1', './assets/enemies/Ghost1.png');
         this.load.image('ghost2', './assets/enemies/Ghost2.png');
@@ -88,7 +90,7 @@ class Level1 extends Phaser.Scene {
 
         //add player, and reticle sprites
         const p1Spawn = map.findObject("P1 Spawn", obj => obj.name === "P1 Spawn");
-        this.player = this.physics.add.sprite(p1Spawn.x, p1Spawn.y, 'playerSprite');
+        this.player = this.physics.add.sprite(p1Spawn.x, p1Spawn.y, 'mainCharAtlas');
         this.reticle = this.physics.add.sprite(p1Spawn.x, p1Spawn.y, 'target');
 
         //set the collisions to true for all collidable objects then set the distorted world to
@@ -152,6 +154,8 @@ class Level1 extends Phaser.Scene {
         this.enemyBullets = this.physics.add.group({classType: Bullet, runChildUpdate: true});
 
         //enemies
+        //spawns are based on the map, i use a rondom image as a placeholder then set the alpha to zero 
+        //and spawn the actual enemy on top of it
         this.copSprites = ['cop1Atlas', 'cop2Atlas', 'cop3Atlas'];
         this.normEnemySpawns = map.createFromObjects("Norm_Enemies", "normEnemySpawn", {
             key: 'ghost1',
@@ -163,14 +167,16 @@ class Level1 extends Phaser.Scene {
                 this.copSprites[Math.floor(Math.random() * this.copSprites.length)]);
             this.enemies.push(enemy);
         }
-        
+        //enemy properties
         for(let i = 0; i < this.enemies.length; i += 1){
             this.enemies[i].health = 3;
             this.enemies[i].lastFired = i*500;
             this.enemies[i].dead = false;
         }
 
-        // //dist enemies
+        //dist enemies
+        //spawns are based on the map, i use a rondom image as a placeholder then set the alpha to zero 
+        //and spawn the actual enemy on top of it
         this.ghostSprites = ['ghost1', 'ghost2', 'ghost3', 'ghost4', 'ghost5', 'ghost6', 'ghost7', 'ghost8'];
         this.distEnemySpawns = map.createFromObjects("Dist_Enemies", "distEnemySpawn", {
             key: 'ghost1',
@@ -182,7 +188,7 @@ class Level1 extends Phaser.Scene {
                 this.ghostSprites[Math.floor(Math.random() * this.ghostSprites.length)]);
             this.distEnemies.push(enemy);
         }
-        
+        //dist enemy properties
         for(let i = 0; i  < this.distEnemies.length; i += 1) { 
             this.distEnemies[i].health = 3;
             this.distEnemies[i].dead = false;
@@ -274,7 +280,9 @@ class Level1 extends Phaser.Scene {
                     if(this.inNormalWorld && this.normalObjects[i] != button1Door1 
                         && this.normalObjects[i] != button2Door1){
                         this.physics.add.collider(bullet, this.normalObjects[i], this.wallHitCallback,
-                             null, this);
+                            null, this);
+                        this.physics.add.collider(bullet, button1Door1, this.buttonHitCallback, null, this);
+                        this.physics.add.collider(bullet, button2Door1, this.buttonHitCallback, null, this);
                     }
                 }
                 for(let i = 0; i < this.distortedObjects.length; i++){
@@ -282,8 +290,6 @@ class Level1 extends Phaser.Scene {
                         this.physics.add.collider(bullet, this.distortedObjects[i], this.wallHitCallback, null, this);
                 }
                 //need to add wall colliders here
-                this.physics.add.collider(bullet, button1Door1, this.buttonHitCallback, null, this);
-                this.physics.add.collider(bullet, button2Door1, this.buttonHitCallback, null, this);
                 bullet.fire(this.player, this.reticle);
                 this.gunshotSFX.play();
                 this.player.justFired = true;
@@ -375,6 +381,7 @@ class Level1 extends Phaser.Scene {
         this.playerLose();
         this.restartGame();
         this.enemyRotation();
+        this.playerRotation();
     }
 
 //=======================================================================================================
@@ -791,33 +798,45 @@ class Level1 extends Phaser.Scene {
         //console.log(this.enemies[0].rotation);
         for(let i = 0; i < this.enemies.length; i++){
             
-            if(this.enemies[i].rotation < .8 && this.enemies[i].rotation > -.8){
+            if(this.enemies[i].rotation < 1.0 && this.enemies[i].rotation > -1.0){
                 this.enemies[i].setFrame("Cop_Right");
             }
-            else if(this.enemies[i].rotation > -2.35 && this.enemies[i].rotation < -.8){
+            else if(this.enemies[i].rotation > -2.2 && this.enemies[i].rotation < -1.0){
                 this.enemies[i].setFrame("Cop_Back");
             }
-            else if(this.enemies[i].rotation < -2.35 || this.enemies[i].rotation > 2.35){
+            else if(this.enemies[i].rotation < -2.2 || this.enemies[i].rotation > 2.2){
                 this.enemies[i].setFrame("Cop_Left");
             }
-            else if(this.enemies[i].rotation < 2.35 && this.enemies[i].rotation > .8){
+            else if(this.enemies[i].rotation < 2.2 && this.enemies[i].rotation > 1.0){
                 this.enemies[i].setFrame("Cop_Front");
             }
         }
     }
 
     playerRotation(){
-        if(this.enemies[i].rotation < .8 && this.enemies[i].rotation > -.8){
-            this.enemies[i].setFrame("Cop_Right");
+        if(this.whereToRotatePlayer < .4 && this.whereToRotatePlayer > -.4){
+            this.player.setFrame("Main_Char_Right");
         }
-        else if(this.enemies[i].rotation > -2.35 && this.enemies[i].rotation < -.8){
-            this.enemies[i].setFrame("Cop_Back");
+        else if(this.whereToRotatePlayer > -1.95 && this.whereToRotatePlayer < -1.2){
+            this.player.setFrame("Main_Char_Back");
         }
-        else if(this.enemies[i].rotation < -2.35 || this.enemies[i].rotation > 2.35){
-            this.enemies[i].setFrame("Cop_Left");
+        else if(this.whereToRotatePlayer < -2.83 || this.whereToRotatePlayer > 2.83){
+            this.player.setFrame("Main_Char_Left");
         }
-        else if(this.enemies[i].rotation < 2.35 && this.enemies[i].rotation > .8){
-            this.enemies[i].setFrame("Cop_Front");
+        else if(this.whereToRotatePlayer < 1.95 && this.whereToRotatePlayer > 1.2){
+            this.player.setFrame("Main_Char_Front");
+        }
+        else if(this.whereToRotatePlayer < 1.2 && this.whereToRotatePlayer > .4){
+            this.player.setFrame("Main_Char_Right_Down");
+        }
+        else if(this.whereToRotatePlayer < -.4 && this.whereToRotatePlayer > -1.2){
+            this.player.setFrame("Main_Char_Right_Up");
+        }
+        else if(this.whereToRotatePlayer > 1.95 && this.whereToRotatePlayer < 2.83){
+            this.player.setFrame("Main_Char_Left_Down");
+        }
+        else if(this.whereToRotatePlayer < -1.95 && this.whereToRotatePlayer > -2.83){
+            this.player.setFrame("Main_Char_Left_Up");
         }
     }
 
