@@ -193,6 +193,9 @@ class Level1 extends Phaser.Scene {
             this.distEnemies[i].health = 3;
             this.distEnemies[i].dead = false;
             this.distEnemies[i].dropped = false;
+            this.distEnemies[i].goingRight = false;
+            this.distEnemies[i].velocityX = 0;
+            this.distEnemies[i].velocityY = 0;
             this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback, null, this);
         }
         //make the distorted enemies inactive and invisible at start
@@ -382,6 +385,7 @@ class Level1 extends Phaser.Scene {
         this.restartGame();
         this.enemyRotation();
         this.playerRotation();
+        this.rotateGhosts();
     }
 
 //=======================================================================================================
@@ -725,6 +729,8 @@ class Level1 extends Phaser.Scene {
         let velocityX = Math.cos(angle)*maxVelocity;
         let velocityY = Math.sin(angle)*maxVelocity;
         enemy.setVelocity(velocityX, velocityY);
+        enemy.velocityX = velocityX;
+        enemy.velocityY = velocityY;
     }
 
     openDoors(door){       
@@ -837,6 +843,20 @@ class Level1 extends Phaser.Scene {
         }
         else if(this.whereToRotatePlayer < -1.95 && this.whereToRotatePlayer > -2.83){
             this.player.setFrame("Main_Char_Left_Up");
+        }
+    }
+
+    rotateGhosts(){
+        for(let i = 0; i < this.distEnemies.length; i++){
+            let enemy = this.distEnemies[i];
+            if(enemy.dead == false && enemy.velocityX >= 0 && enemy.goingRight == false){
+                enemy.flipX = true;
+                enemy.goingRight = true;
+            }
+            else if(enemy.dead == false && enemy.velocityX <= 0 && enemy.goingRight == true){
+                enemy.flipX = false;
+                enemy.goingRight = false;
+            }
         }
     }
 
