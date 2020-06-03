@@ -366,10 +366,12 @@ class Level1 extends Phaser.Scene {
             this.enemyFire(enemy, this.player, this);
         }
         //make distorted enemies run toward player
-        for(let i = 0; i < this.distEnemies.length; i++){
-            this.enemyMove(this.distEnemies[i], this.player, 16);
-            if(this.distEnemies[i].dead == true && this.distEnemies[i].dropped == false){
-                this.spawnHealth(this.distEnemies[i]);
+        if(this.inNormalWorld == false){
+            for(let i = 0; i < this.distEnemies.length; i++){
+                this.enemyMove(this.distEnemies[i], this.player, 16);
+                if(this.distEnemies[i].dead == true && this.distEnemies[i].dropped == false){
+                    this.spawnHealth(this.distEnemies[i]);
+                }
             }
         }
         //puzzles m8
@@ -499,6 +501,7 @@ class Level1 extends Phaser.Scene {
         for(let i = 0; i < this.distEnemies.length; i++){
             if(this.distEnemies[i].dead == false) {
                 if(this.distEnemies[i].active == true){
+                    this.distEnemies[i].setVelocity(0);
                     this.distEnemies[i].setActive(false);
                     this.distEnemies[i].setVisible(false);
                 }
