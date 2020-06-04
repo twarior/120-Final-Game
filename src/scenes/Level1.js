@@ -49,27 +49,29 @@ class Level1 extends Phaser.Scene {
 		const normalGraves = map.createStaticLayer('Norm_Graves', tileset);
 		const normalMausoleum = map.createStaticLayer('Norm_Mausoleum', tileset);
 		const normalFountain = map.createStaticLayer('Norm_Fountain', tileset);
-		const normalDucks = map.createStaticLayer('Norm_Ducks', tileset);
+        const normalDucks = map.createStaticLayer('Norm_Ducks', tileset);
+        var door1 = map.createDynamicLayer('Door1', tileset);
+        
 		const distortedBackground = map.createStaticLayer('Dist_Background', tileset);
 		const distortedGates = map.createStaticLayer('Dist_Gates', tileset);
 		const distortedGraves = map.createStaticLayer('Dist_Graves', tileset);
 		const distortedWell = map.createStaticLayer('Dist_Well', tileset);
 		const distortedFountain =  map.createStaticLayer('Dist_Fountain', tileset);
         const distortedHoles =  map.createStaticLayer('Dist_Holes', tileset);
-        var door1 = map.createDynamicLayer('Door1', tileset);
-        const button1Door1 = map.createStaticLayer('Button1_Door1', tileset);
-        const button2Door1 = map.createStaticLayer('Button2_Door1', tileset);
         const skeletonStatue = map.createStaticLayer('Skeleton_Statue', tileset);
         const groundGhosts = map.createStaticLayer('Ground_Ghost', tileset);
         const reaper = map.createStaticLayer('Reaper', tileset);
+        const button1Door1 = map.createStaticLayer('Button1_Door1', tileset);
+        const button2Door1 = map.createStaticLayer('Button2_Door1', tileset);
         
         this.skelly = skeletonStatue;
 
         this.door1Update = door1;
+        this.b1 = button1Door1;
+        this.b2 = button2Door1;
 
         //create arrays to store the collidiable objects and the non
-        this.normalObjects = [normalGates, normalGraves, normalMausoleum, normalFountain, door1,
-            button1Door1, button2Door1];
+        this.normalObjects = [normalGates, normalGraves, normalMausoleum, normalFountain, door1];
         this.normalScenery = [normalBackground, normalDucks];
         this.distortedObjects = [distortedGates, distortedGraves, distortedWell, distortedFountain, 
             distortedHoles, groundGhosts, reaper];
@@ -293,18 +295,17 @@ class Level1 extends Phaser.Scene {
                 } 
                 //stop the bullets on the present walls 
                 for(let i = 0; i < this.normalObjects.length; i++){
-                    if(this.inNormalWorld && this.normalObjects[i] != button1Door1 
-                        && this.normalObjects[i] != button2Door1){
+                    if(this.inNormalWorld){
                         this.physics.add.collider(bullet, this.normalObjects[i], this.wallHitCallback,
-                            null, this);
-                        this.physics.add.collider(bullet, button1Door1, this.buttonHitCallback, null, this);
-                        this.physics.add.collider(bullet, button2Door1, this.buttonHitCallback, null, this);
+                            null, this);   
                     }
                 }
                 for(let i = 0; i < this.distortedObjects.length; i++){
                     if(!this.inNormalWorld)
                         this.physics.add.collider(bullet, this.distortedObjects[i], this.wallHitCallback, null, this);
                 }
+                this.physics.add.collider(bullet, button1Door1, this.buttonHitCallback, null, this);
+                this.physics.add.collider(bullet, button2Door1, this.buttonHitCallback, null, this);
                 this.physics.add.collider(bullet, skeletonStatue, this.wallHitCallback, null, this);
                 //need to add wall colliders here
                 bullet.fire(this.player, this.reticle);
@@ -768,7 +769,7 @@ class Level1 extends Phaser.Scene {
         this.UICamera = this.cameras.add(0,0, game.config.width, game.config.height);
         this.UICamera.ignore([this.player, this.reticle, this.enemies, this.distEnemies, 
             this.distortedObjects,this.distortedScenery, this.normalObjects, this.normalScenery, 
-            this.playerBullets, this.enemyBullets, this.skelly]);
+            this.playerBullets, this.enemyBullets, this.skelly, this.b1, this.b2]);
         
     }
 
