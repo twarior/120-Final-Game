@@ -786,11 +786,13 @@ class Level1 extends Phaser.Scene {
                 win = false;
                 break;
             }
+            win = true;
         }
         if(win == true){
             this.player.active = false;
             this.player.destroy();
-            this.add.text(this.player.x, this.player.y, "YOU WIN");
+            this.winText = this.add.text(this.player.x, this.player.y, "YOU WIN");
+            this.UICamera.ignore(this.winText);
             this.gameOver = true;
         }    
     }
