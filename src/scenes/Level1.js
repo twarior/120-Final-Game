@@ -59,8 +59,11 @@ class Level1 extends Phaser.Scene {
         var door1 = map.createDynamicLayer('Door1', tileset);
         const button1Door1 = map.createStaticLayer('Button1_Door1', tileset);
         const button2Door1 = map.createStaticLayer('Button2_Door1', tileset);
+        const skeletonStatue = map.createStaticLayer('Skeleton_Statue', tileset);
+        const groundGhosts = map.createStaticLayer('Ground_Ghost', tileset);
+        const reaper = map.createStaticLayer('Reaper', tileset);
         
-
+        this.skelly = skeletonStatue;
 
         this.door1Update = door1;
 
@@ -69,7 +72,7 @@ class Level1 extends Phaser.Scene {
             button1Door1, button2Door1];
         this.normalScenery = [normalBackground, normalDucks];
         this.distortedObjects = [distortedGates, distortedGraves, distortedWell, distortedFountain, 
-            distortedHoles];
+            distortedHoles, groundGhosts, reaper];
         this.distortedScenery = [distortedBackground];
 
         //height and width of the world based on the tilemap
@@ -105,6 +108,7 @@ class Level1 extends Phaser.Scene {
         for(let i = 0; i < this.distortedScenery.length; i++){
             this.distortedScenery[i].setActive(false).setVisible(false);
         }
+        skeletonStatue.setCollisionByProperty({ collides: true});
 
         //create toggles for the physics colliders in both worlds 
         this.normalGatesToggle = this.physics.add.collider(this.player, normalGates);
@@ -119,11 +123,15 @@ class Level1 extends Phaser.Scene {
         this.distortedHolesToggle = this.physics.add.collider(this.player, distortedHoles);
         this.distortedWellToggle = this.physics.add.collider(this.player, distortedWell);
         this.distortedFountainToggle = this.physics.add.collider(this.player, distortedFountain);
+        this.distortedGroundGhostsToggle = this.physics.add.collider(this.player, groundGhosts);
+        this.distortedReaperToggle = this.physics.add.collider(this.player, reaper);
+        this.skeletonStatue = this.physics.add.collider(this.player, skeletonStatue);
         //put those in arrays for safe keeping
         this.normalColliderToggles = [this.normalGatesToggle, this.normalGravesToggle, 
             this.normalMausoleumToggle, this.normalFountainToggle, this.door1Toggle];
         this.distortedColliderToggles = [this.distortedGatesToggle, this.distortedGravesToggles, 
-            this.distortedHolesToggle, this.distortedWellToggle, this.distortedFountainToggle];
+            this.distortedHolesToggle, this.distortedWellToggle, this.distortedFountainToggle, 
+            this.distortedGroundGhostsToggle, this.distortedReaperToggle];
         //turn off the colliders in the distorted world
         for(let i = 0; i < this.distortedColliderToggles.length; i ++){
             this.distortedColliderToggles[i].active = false;
@@ -196,6 +204,9 @@ class Level1 extends Phaser.Scene {
             this.distEnemies[i].goingRight = false;
             this.distEnemies[i].velocityX = 0;
             this.distEnemies[i].velocityY = 0;
+            for(let j = 0; j < this.distortedObjects.length; j++){
+                this.physics.add.collider(this.distEnemies[i], this.distortedObjects[j]);
+            }
             this.physics.add.collider(this.player, this.distEnemies[i], this.playerHitMeleeCallback, null, this);
         }
         //make the distorted enemies inactive and invisible at start
@@ -221,7 +232,9 @@ class Level1 extends Phaser.Scene {
 
         //set camera zoom
         this.cameras.main.zoom = 4;
+        this.cameras.main.roundPixels = true;
         this.playerHUD();
+        this.UICamera.roundPixels = true;
 
         //create object for input with wasd keys and menu buttons up and down arrow
         this.moveKeys = this.input.keyboard.addKeys({
@@ -292,6 +305,7 @@ class Level1 extends Phaser.Scene {
                     if(!this.inNormalWorld)
                         this.physics.add.collider(bullet, this.distortedObjects[i], this.wallHitCallback, null, this);
                 }
+                this.physics.add.collider(bullet, skeletonStatue, this.wallHitCallback, null, this);
                 //need to add wall colliders here
                 bullet.fire(this.player, this.reticle);
                 this.gunshotSFX.play();
@@ -366,10 +380,12 @@ class Level1 extends Phaser.Scene {
             this.enemyFire(enemy, this.player, this);
         }
         //make distorted enemies run toward player
-        for(let i = 0; i < this.distEnemies.length; i++){
-            this.enemyMove(this.distEnemies[i], this.player, 16);
-            if(this.distEnemies[i].dead == true && this.distEnemies[i].dropped == false){
-                this.spawnHealth(this.distEnemies[i]);
+        if(this.inNormalWorld == false){
+            for(let i = 0; i < this.distEnemies.length; i++){
+                this.enemyMove(this.distEnemies[i], this.player, 16);
+                if(this.distEnemies[i].dead == true && this.distEnemies[i].dropped == false){
+                    this.spawnHealth(this.distEnemies[i]);
+                }
             }
         }
         //puzzles m8
@@ -499,6 +515,7 @@ class Level1 extends Phaser.Scene {
         for(let i = 0; i < this.distEnemies.length; i++){
             if(this.distEnemies[i].dead == false) {
                 if(this.distEnemies[i].active == true){
+                    this.distEnemies[i].setVelocity(0);
                     this.distEnemies[i].setActive(false);
                     this.distEnemies[i].setVisible(false);
                 }
@@ -751,7 +768,7 @@ class Level1 extends Phaser.Scene {
         this.UICamera = this.cameras.add(0,0, game.config.width, game.config.height);
         this.UICamera.ignore([this.player, this.reticle, this.enemies, this.distEnemies, 
             this.distortedObjects,this.distortedScenery, this.normalObjects, this.normalScenery, 
-            this.playerBullets, this.enemyBullets]);
+            this.playerBullets, this.enemyBullets, this.skelly]);
         
     }
 
