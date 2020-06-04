@@ -6,7 +6,7 @@ class Menu extends Phaser.Scene {
     preload(){
         //load audio here
         this.load.audio('sfx_select', './assets/sfx/menuSelect.mp3');
-        this.load.image('menu', './assets/backgrounds/Menu.png');
+        this.load.image('menu', './assets/backgrounds/phaserMenu.png');
     }
 
     create() {
@@ -39,7 +39,7 @@ class Menu extends Phaser.Scene {
         //     .setOrigin(.5);
         this.menuScale = 4;
         this.menu = this.add.image(0, 0, 'menu').setOrigin(0,0).setScale(4);
-        while(this.menu.displayHeight > game.config.height){
+        while((this.menu.displayHeight > game.config.height) || (this.menu.displayWidth > game.config.width)){
             this.menuScale -= .1;
             this.menu.setScale(this.menuScale, this.menuScale);
         }

@@ -19,19 +19,23 @@ class Story extends Phaser.Scene {
         this.content = [
             "You're a homeless orphan who scavenges the ",
             "streets to survive. ",
-            "While rummaging though some trash, you encounter ",
-            "an unloaded gun with... ",
+            " ",
+            "While rummaging though some trash, you ",
+            "encounter an unloaded gun with... ",
             "a peculiar aura. ",
+            " ",
             "Upon picking it up, a ghost pops out of it. ",
-            "When it realizes you can see it, it asks for ",
-            "your help. ",
+            "When it realizes you can see it, it asks ",
+            "for your help. ",
+            " ",
             "Together, you travel between the physical ",
             "and supernatural world, vanquishing the ", 
             "spirits that wish ill upon both using ",
             "ghostly bullets created by your new friend. ",
+            " ",
             "Unfortunately, the police do not appreciate ",
-            "a child running around with a gun, so they try ",
-            "to stop you... "
+            "a child running around with a gun, so they ",
+            "try to stop you... "
         ];
 
         this.line = [];
@@ -41,9 +45,13 @@ class Story extends Phaser.Scene {
 
         this.wordDelay = 100;
         this.lineDelay = 1000;
-        this.text = this.add.text(this.parchment.x + this.parchment.displayWidth/6, 64, '', 
-        { font: "18px Arial", fill: "#5c0000", boundsAlignH: "center", boundsAlignV: "middle" });
+        this.text = this.add.bitmapText(this.parchment.x + this.parchment.displayWidth/6, 64, '', 
+        { font: "Arial", fill: "#5c0000", boundsAlignH: "center", boundsAlignV: "middle" });
 
+        while(88/this.text.fontSize > 5*this.parchment.displayWidth/6){
+            this.text.setFontSize(this.text.fontSize - 1);
+        }
+        console.log(this.text.fontSize);
         
         this.nextLine();
         

@@ -33,7 +33,7 @@ class Level1 extends Phaser.Scene {
         this.load.audio('sfx_playerHit', './assets/sfx/playerHit03.mp3');
         this.load.audio('sfx_phase', './assets/sfx/transitionMid.mp3');
         this.load.audio('sfx_enemyHit', './assets/sfx/Damage.mp3');
-        this.load.image('mapAssetsTilemap', './assets/tilemaps/mapAssetsTilemap.png');
+        this.load.image('mapAssetsTilemap', './assets/tilemaps/mapAssetsTilemapExtruded.png');
 		this.load.tilemapTiledJSON('bothWorldsMap', './assets/tilemaps/bothMapsWithObjects.json');
     }
 
@@ -42,7 +42,7 @@ class Level1 extends Phaser.Scene {
     create(){
         //create the tilemaps and the layers as constant objects so we can access them
         const map = this.make.tilemap({ key: 'bothWorldsMap' });
-		const tileset = map.addTilesetImage('mapAssetsTilemap', 'mapAssetsTilemap');
+		const tileset = map.addTilesetImage('mapAssetsTilemap', 'mapAssetsTilemap', 16, 16, 1, 2);
 		
 		const normalBackground = map.createStaticLayer('Norm_Background', tileset);
 		const normalGates = map.createStaticLayer('Norm_Gates', tileset);
