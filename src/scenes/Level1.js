@@ -7,7 +7,7 @@ class Level1 extends Phaser.Scene {
         this.load.image('playerSprite', './assets/sprites/Main_Char_Bang_Bang.png');
         this.load.atlas('mainCharAtlas', './assets/textureAtlases/mainCharTextureAtlas.png',
             './assets/textureAtlases/mainCharTextureAtlas.json');
-        this.load.image('enemySprite', './assets/enemies/badSmiley.png');
+        this.load.image('portal', './assets/sprites/smallPortal.png');
         this.load.image('ghost1', './assets/enemies/Ghost1.png');
         this.load.image('ghost2', './assets/enemies/Ghost2.png');
         this.load.image('ghost3', './assets/enemies/Ghost3.png');
@@ -19,6 +19,7 @@ class Level1 extends Phaser.Scene {
         this.load.image('target', './assets/sprites/reticle.png');
         this.load.image('normalWall', './assets/sprites/normWall.png');
         this.load.image('distortedWall', './assets/sprites/distWall.png');
+        this.load.image('playerBullet', './assets/sprites/newBullet.png');
         this.load.image('bullet', './assets/sprites/bullet.png');
         this.load.image('health', './assets/sprites/healthSprite.png');
         this.load.image('closedDoor', './assets/sprites/closedDoor.png');
@@ -97,6 +98,8 @@ class Level1 extends Phaser.Scene {
         const p1Spawn = map.findObject("P1 Spawn", obj => obj.name === "P1 Spawn");
         this.player = this.physics.add.sprite(p1Spawn.x, p1Spawn.y, 'mainCharAtlas');
         this.reticle = this.physics.add.sprite(p1Spawn.x, p1Spawn.y, 'target');
+        this.portal = this.physics.add.sprite(this.player.x + 4, this.player.y + 4, 'portal').
+        setAlpha(0).setOrigin(.5, .5).setScale(2);
 
         //set the collisions to true for all collidable objects then set the distorted world to
         //invisable and inactive 
@@ -158,6 +161,7 @@ class Level1 extends Phaser.Scene {
         this.player.health = 5;
         this.player.invincible = false;
         this.player.justFired = false;
+
 
         //add bulllet groups for both player and enemies
         this.playerBullets = this.physics.add.group({classType: Bullet, runChildUpdate: true});
@@ -283,7 +287,7 @@ class Level1 extends Phaser.Scene {
     
             // Get bullet from bullets group
             if(!this.player.justFired)
-                var bullet = this.playerBullets.get().setActive(true).setVisible(true);
+                var bullet = this.playerBullets.get().setActive(true).setVisible(true).setTexture('playerBullet');
     
             if (bullet && !this.player.justFired)
             {  
@@ -345,7 +349,8 @@ class Level1 extends Phaser.Scene {
         if (!this.gameOver && this.moveKeys.left.isUp && this.moveKeys.right.isUp){
             this.player.setAccelerationX(0);
         }
-        
+        this.portal.x = this.player.x;
+        this.portal.y = this.player.y;
         //camera tracks player 
         // var avgX = ((this.player.x + this.reticle.x)/2)-400;
         // var avgY = ((this.player.y + this.reticle.y)/2)-300;
@@ -538,6 +543,7 @@ class Level1 extends Phaser.Scene {
                 }
             }
         }
+        this.tweenPlayerPhase();
         //make sure the bullets dont collide with the non-active walls
         //could place them in the first section when we switch the walls but that seems too cluttered
         // if(this.normalWallToggle.active == true){
@@ -628,7 +634,7 @@ class Level1 extends Phaser.Scene {
                 },
                 loop: false
             });
-            this.tweenPlayer();
+            this.tweenPlayerFlash();
         }
         
     }
@@ -660,7 +666,7 @@ class Level1 extends Phaser.Scene {
                 },
                 loop: false
             });
-            this.tweenPlayer();
+            this.tweenPlayerFlash();
         }
     }
 
@@ -771,7 +777,7 @@ class Level1 extends Phaser.Scene {
         this.UICamera = this.cameras.add(0,0, game.config.width, game.config.height);
         this.UICamera.ignore([this.player, this.reticle, this.enemies, this.distEnemies, 
             this.distortedObjects,this.distortedScenery, this.normalObjects, this.normalScenery, 
-            this.playerBullets, this.enemyBullets, this.skelly, this.b1, this.b2]);
+            this.playerBullets, this.enemyBullets, this.skelly, this.b1, this.b2, this.portal]);
         
     }
 
@@ -882,13 +888,22 @@ class Level1 extends Phaser.Scene {
         }
     }
 
-    tweenPlayer() {
+    tweenPlayerFlash() {
         this.tweens.add({
             targets: this.player,
             alpha: 0,
             duration: 250,
             yoyo: true,
             repeat: 3
+        });
+    }
+
+    tweenPlayerPhase() {
+        this.tweens.add({
+            targets: this.portal,
+            alpha: 1,
+            duration: 250,
+            yoyo: true
         });
     }
 
