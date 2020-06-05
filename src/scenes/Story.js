@@ -26,25 +26,40 @@ class Story extends Phaser.Scene {
         }
         console.log(this.parchment.displayHeight + " " + game.config.height);
         this.content = [
-            "You are a homeless orphan who scavenges the ",
-            "streets to survive. ",
+            "You are an orphaned child who roams the ", 
+            "streets, scavenging to survive. ",
             " ",
-            "While rummaging though some trash, you ",
-            "encounter an unloaded gun with... ",
-            "a peculiar aura. ",
+            "While rummaging through some trash, you ", 
+            "stumble upon an unloaded gun with… a ",
+            "peculiar aura. ",
             " ",
-            "Upon picking it up, a ghost pops out of it. ",
-            "When it realizes you can see it, it asks ",
-            "for your help. ",
+            "Upon picking it up, it shakes with an ",
+            "unearthly energy and glows a ",
+            "phosphorescent green. ",
+            " ",
+            "Before you have time to process what ",
+            "is happening, a small ghost pops out. ",
+            " ",
+            "It looks ",
+            "shaken, but when it realizes you can see ",
+            "it, it introduces itself as Peter and ",
+            "asks for your help in keeping their ",
+            "world safe. ",
+            " ",
+            "Not knowing what else to do... ",
+            "you agree. ", 
             " ",
             "Together, you travel between the physical ",
-            "and supernatural world, vanquishing the ", 
-            "spirits that wish ill upon both using ",
-            "ghostly bullets created by your new friend. ",
+            "and supernatural world, vanquishing the  ",
+            "ill-spirited specters. Peter teaches you ",
+            "about ghostly bullets and phasing ",
+            "between worlds. ", 
             " ",
-            "Unfortunately, the police do not appreciate ",
-            "a child running around with a gun, so they ",
-            "try to stop you... "
+            "There is, however, a small problem. The ", 
+            "police don’t really appreciate a child ",
+            "running around with a gun, so they are ",
+            "going to try to stop you... "
+
         ];
 
         this.line = [];
@@ -52,7 +67,7 @@ class Story extends Phaser.Scene {
         this.wordIndex = 0;
         this.lineIndex = 0;
 
-        this.wordDelay = 50;
+        this.wordDelay = 65;
         this.lineDelay = 1000;
         // this.text = this.add.text(this.parchment.x + this.parchment.displayWidth/6, 64, '', 
         // { font: "Arial", fill: "#5c0000", boundsAlignH: "center", boundsAlignV: "middle" });
