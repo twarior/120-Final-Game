@@ -5,19 +5,28 @@ class Story extends Phaser.Scene {
 
     preload(){
         this.load.image('parchment', './assets/backgrounds/Parchment.png');
+        this.load.bitmapFont('arcade', './assets/fonts/arcade.png', './assets/fonts/arcade.xml');
     }
 
     create() {
         this.parchmentScale = 4;
-        this.parchment = this.physics.add.sprite(0,0, 'parchment').setOrigin(0, 0).setScale(4, 4);
-        this.parchment.x = (game.config.width/2) - (this.parchment.displayWidth/2);
-        while(this.parchment.displayHeight > game.config.height){
-            this.parchmentScale -= .1;
-            this.parchment.setScale(this.parchmentScale, this.parchmentScale);
+        this.parchment = this.physics.add.sprite(game.config.width /2,0, 'parchment').setOrigin(0.5, 0).setScale(4, 4);
+        //this.parchment.x = (game.config.width/2);
+        if(this.parchment.displayHeight> game.config.height){
+            while(this.parchment.displayHeight > game.config.height){
+                this.parchmentScale -= .1;
+                this.parchment.setScale(this.parchmentScale, this.parchmentScale);
+            }
+        }
+        else {
+            while(this.parchment.displayHeight < game.config.height){
+                this.parchmentScale += .1;
+                this.parchment.setScale(this.parchmentScale, this.parchmentScale);
+            }
         }
         console.log(this.parchment.displayHeight + " " + game.config.height);
         this.content = [
-            "You're a homeless orphan who scavenges the ",
+            "You are a homeless orphan who scavenges the ",
             "streets to survive. ",
             " ",
             "While rummaging though some trash, you ",
@@ -43,13 +52,25 @@ class Story extends Phaser.Scene {
         this.wordIndex = 0;
         this.lineIndex = 0;
 
-        this.wordDelay = 100;
+        this.wordDelay = 50;
         this.lineDelay = 1000;
-        this.text = this.add.bitmapText(this.parchment.x + this.parchment.displayWidth/6, 64, '', 
-        { font: "Arial", fill: "#5c0000", boundsAlignH: "center", boundsAlignV: "middle" });
-
-        while(88/this.text.fontSize > 5*this.parchment.displayWidth/6){
-            this.text.setFontSize(this.text.fontSize - 1);
+        // this.text = this.add.text(this.parchment.x + this.parchment.displayWidth/6, 64, '', 
+        // { font: "Arial", fill: "#5c0000", boundsAlignH: "center", boundsAlignV: "middle" });
+        this.text = this.add.bitmapText(game.config.width/2 - this.parchment.displayWidth/3,
+            this.parchment.displayHeight/5, 'arcade', '', 16).setTint(0x5c0000, 0x5c0000, 
+            0x5c0000, 0x5c0000).setOrigin(0, 0).setScale(1, 1);
+        this.text.ySpacing = 10;
+            
+        console.log(this.text.fontSize +  ' ' + 4*this.parchment.displayWidth/(6*44));
+        if(this.text.fontSize > 4*this.parchment.displayWidth/(6*44)){
+            while(this.text.fontSize > 4*this.parchment.displayWidth/(6*44)){
+                this.text.setFontSize(this.text.fontSize - 1);
+            }
+        }
+        else {
+            while(this.text.fontSize < 4*this.parchment.displayWidth/(6*44)){
+                this.text.setFontSize(this.text.fontSize + 1);
+            }
         }
         console.log(this.text.fontSize);
         
@@ -108,7 +129,7 @@ class Story extends Phaser.Scene {
         if(this.line[this.wordIndex] == undefined){
             return;
         }
-        this.text.text = this.text.text.concat(this.line[this.wordIndex] + " ");
+        this.text.text = this.text.text.concat(this.line[this.wordIndex] + "");
 
         //  Advance the word index to the next word in the line
         this.wordIndex++;

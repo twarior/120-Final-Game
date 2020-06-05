@@ -16,7 +16,7 @@
 
 
 let config = {
-    type: Phaser.CANVAS,
+    type: Phaser.WEBGL,
     width: window.innerWidth * window.devicePixelRatio, 
     height: window.innerHeight * window.devicePixelRatio,
     pixelArt: true,
