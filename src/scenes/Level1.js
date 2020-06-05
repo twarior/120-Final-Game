@@ -25,11 +25,17 @@ class Level1 extends Phaser.Scene {
         this.load.image('closedDoor', './assets/sprites/closedDoor.png');
         this.load.image('button', './assets/sprites/button.png');
         this.load.atlas('cop1Atlas', './assets/textureAtlases/cop1TextureAtlas.png',
-        './assets/textureAtlases/cop1TextureAtlas.json');
+            './assets/textureAtlases/cop1TextureAtlas.json');
         this.load.atlas('cop2Atlas', './assets/textureAtlases/cop2TextureAtlas.png',
-        './assets/textureAtlases/cop2TextureAtlas.json');
+            './assets/textureAtlases/cop2TextureAtlas.json');
         this.load.atlas('cop3Atlas', './assets/textureAtlases/cop3TextureAtlas.png',
-        './assets/textureAtlases/cop3TextureAtlas.json');
+            './assets/textureAtlases/cop3TextureAtlas.json');
+        this.load.spritesheet('cop1Death', './assets/animations/cop1Fall.png', 
+            {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 5});
+        this.load.spritesheet('cop2Death', './assets/animations/cop2Fall.png', 
+            {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 5});
+        this.load.spritesheet('cop3Death', './assets/animations/cop3Fall.png', 
+            {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 5});
         this.load.audio('sfx_gunshot', './assets/sfx/gunshot03.mp3');
         this.load.audio('sfx_playerHit', './assets/sfx/playerHit03.mp3');
         this.load.audio('sfx_phase', './assets/sfx/transitionMid.mp3');
@@ -188,6 +194,29 @@ class Level1 extends Phaser.Scene {
             this.enemies[i].dead = false;
         }
 
+        //aniamtion for cop deaths
+        let config01 = {
+            key: 'cop1Fall',
+            frames: this.anims.generateFrameNumbers('cop1Death', {start: 0, end: 5, first: 0}),
+            frameRate: 12,
+            repeat: 0
+        }
+        this.anims.create(config01);
+        let config02 = {
+            key: 'cop2Fall',
+            frames: this.anims.generateFrameNumbers('cop2Death', {start: 0, end: 5, first: 0}),
+            frameRate: 12,
+            repeat: 0
+        }
+        this.anims.create(config02);
+        let config03 = {
+            key: 'cop3Fall',
+            frames: this.anims.generateFrameNumbers('cop3Death', {start: 0, end: 5, first: 0}),
+            frameRate: 12,
+            repeat: 0
+        }
+        this.anims.create(config03);
+
         //dist enemies
         //spawns are based on the map, i use a rondom image as a placeholder then set the alpha to zero 
         //and spawn the actual enemy on top of it
@@ -321,7 +350,7 @@ class Level1 extends Phaser.Scene {
                         this.player.justFired = false;
                     },
                     loop: false
-                 })
+                 });
                 this.UICamera.ignore(bullet);
             }
         }, this);
@@ -544,6 +573,14 @@ class Level1 extends Phaser.Scene {
             }
         }
         this.tweenPlayerPhase();
+        this.justPhased = true;
+        this.playerJustPhased = this.time.addEvent({
+            delay: 1000,
+            callback: ()=>{
+                this.justPhased = false;
+            },
+            loop: false
+        });
         //make sure the bullets dont collide with the non-active walls
         //could place them in the first section when we switch the walls but that seems too cluttered
         // if(this.normalWallToggle.active == true){
@@ -598,6 +635,7 @@ class Level1 extends Phaser.Scene {
                 enemyHit.setVelocity(0,0);
                 enemyHit.setActive(false).setVisible(false).destroy();
                 enemyHit.dead = true;
+                this.copDeathAnimation(enemyHit);
             }
             this.enemyHitSFX.play();
             //destroy bullet
@@ -899,12 +937,45 @@ class Level1 extends Phaser.Scene {
     }
 
     tweenPlayerPhase() {
-        this.tweens.add({
-            targets: this.portal,
-            alpha: 1,
-            duration: 250,
-            yoyo: true
-        });
+        if(!this.justPhased){
+            this.tweens.add({
+                targets: this.portal,
+                alpha: 1,
+                duration: 250,
+                yoyo: true
+            });
+            this.portal.setAlpha(0);
+        }
+    }
+
+    copDeathAnimation(cop) {
+        let tempAnimKey;
+        let tempCopKey;
+        let isCop = false;
+        console.log(cop.texture.key);
+        if(cop.texture.key == 'cop1Atlas'){
+            tempAnimKey = 'cop1Fall';
+            tempCopKey = 'cop1Death';
+            isCop = true;
+        }
+        else if (cop.texture.key == 'cop2Atlas'){
+            tempAnimKey = 'cop2Fall';
+            tempCopKey = 'cop2Death';
+            isCop = true;
+        }
+        else if(cop.texture.key == 'cop3Atlas'){
+            tempAnimKey = 'cop3Fall';
+            tempCopKey = 'cop3Death';
+            isCop = true;
+        }
+        if(isCop == true){
+            let death = this.add.sprite(cop.x, cop.y, tempCopKey);
+            this.UICamera.ignore(death);
+            death.anims.play(tempAnimKey);
+            death.on('animationcomplete', () => {
+                death.destroy();
+            });
+        }
     }
 
 }
