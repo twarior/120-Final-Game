@@ -627,7 +627,8 @@ class Level1 extends Phaser.Scene {
                     this.player.invincible = false;
                 },
                 loop: false
-            })
+            });
+            this.tweenPlayer();
         }
         
     }
@@ -658,7 +659,8 @@ class Level1 extends Phaser.Scene {
                     this.player.invincible = false;
                 },
                 loop: false
-            })
+            });
+            this.tweenPlayer();
         }
     }
 
@@ -878,6 +880,16 @@ class Level1 extends Phaser.Scene {
                 enemy.goingRight = false;
             }
         }
+    }
+
+    tweenPlayer() {
+        this.tweens.add({
+            targets: this.player,
+            alpha: 0,
+            duration: 250,
+            yoyo: true,
+            repeat: 3
+        });
     }
 
 }
