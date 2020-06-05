@@ -45,7 +45,6 @@ class Menu extends Phaser.Scene {
                 this.menu.setScale(this.menuScale, this.menuScale);
             }
         }
-        
         while((this.menu.displayHeight > game.config.height) || (this.menu.displayWidth > game.config.width)){
             this.menuScale -= .01;
             this.menu.setScale(this.menuScale, this.menuScale);
