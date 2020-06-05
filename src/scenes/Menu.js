@@ -38,12 +38,18 @@ class Menu extends Phaser.Scene {
         // this.add.text(centerX, centerY + 2*textSpacer, 'Press SPACE to Start', menuConfig)
         //     .setOrigin(.5);
         this.menuScale = 4;
-        this.menu = this.add.image(0, 0, 'menu').setOrigin(0,0).setScale(4);
+        this.menu = this.add.image(game.config.width/2, 0, 'menu').setOrigin(0.5,0).setScale(4);
+        if((this.menu.displayHeight < game.config.height) || (this.menu.displayWidth < game.config.width)){
+            while((this.menu.displayHeight < game.config.height) || (this.menu.displayWidth < game.config.width)){
+                this.menuScale += .01;
+                this.menu.setScale(this.menuScale, this.menuScale);
+            }
+        }
+        
         while((this.menu.displayHeight > game.config.height) || (this.menu.displayWidth > game.config.width)){
-            this.menuScale -= .1;
+            this.menuScale -= .01;
             this.menu.setScale(this.menuScale, this.menuScale);
         }
-
         // define keys
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
