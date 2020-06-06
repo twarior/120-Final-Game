@@ -59,8 +59,7 @@ class Level1 extends Phaser.Scene {
         const normalDucks = map.createStaticLayer('Norm_Ducks', tileset);
         const normalFlowers = map.createStaticLayer('Flowers', tileset);
         var door1 = map.createDynamicLayer('Door1', tileset);
-        const button1Door1 = map.createStaticLayer('Button1_Door1', tileset);
-        const button2Door1 = map.createStaticLayer('Button2_Door1', tileset);
+        
 		const distortedBackground = map.createStaticLayer('Dist_Background', tileset);
 		const distortedGates = map.createStaticLayer('Dist_Gates', tileset);
 		const distortedGraves = map.createStaticLayer('Dist_Graves', tileset);
@@ -70,6 +69,8 @@ class Level1 extends Phaser.Scene {
         const skeletonStatue = map.createStaticLayer('Skeleton_Statue', tileset);
         const groundGhosts = map.createStaticLayer('Ground_Ghost', tileset);
         const reaper = map.createStaticLayer('Reaper', tileset);
+        const button1Door1 = map.createStaticLayer('Button1_Door1', tileset);
+        const button2Door1 = map.createStaticLayer('Button2_Door1', tileset);
         
         
         this.skelly = skeletonStatue;
