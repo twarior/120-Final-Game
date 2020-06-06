@@ -44,7 +44,7 @@ class Level1 extends Phaser.Scene {
         
         //music
         this.load.audio('normSoundtrack', './assets/sfx/LightWorld.mp3');
-        this.load.audio('distSoundtrack', './assets/sfx/DarkWorld.mp3');
+        this.load.audio('distSoundtrack', './assets/sfx/Darkworld.mp3');
 
         //sfx
         this.load.audio('sfx_gunshot', './assets/sfx/gunshot03.mp3');
