@@ -57,6 +57,7 @@ class Level1 extends Phaser.Scene {
 		const normalMausoleum = map.createStaticLayer('Norm_Mausoleum', tileset);
 		const normalFountain = map.createStaticLayer('Norm_Fountain', tileset);
         const normalDucks = map.createStaticLayer('Norm_Ducks', tileset);
+        const normalFlowers = map.createStaticLayer('Flowers', tileset);
         var door1 = map.createDynamicLayer('Door1', tileset);
         const button1Door1 = map.createStaticLayer('Button1_Door1', tileset);
         const button2Door1 = map.createStaticLayer('Button2_Door1', tileset);
@@ -75,11 +76,11 @@ class Level1 extends Phaser.Scene {
 
         this.door1Update = door1;
         this.b1 = button1Door1;
-        this.b2 = button2Door1;
+        this.b2 = button2Door1; 
 
         //create arrays to store the collidiable objects and the non
         this.normalObjects = [normalGates, normalGraves, normalMausoleum, normalFountain, door1];
-        this.normalScenery = [normalBackground, normalDucks];
+        this.normalScenery = [normalBackground, normalDucks, normalFlowers];
         this.distortedObjects = [distortedGates, distortedGraves, distortedWell, distortedFountain, 
             distortedHoles, groundGhosts, reaper];
         this.distortedScenery = [distortedBackground];
