@@ -4,9 +4,8 @@ class Level1 extends Phaser.Scene {
     }
     preload(){
         //load assets here
+        //sprites
         this.load.image('playerSprite', './assets/sprites/Main_Char_Bang_Bang.png');
-        this.load.atlas('mainCharAtlas', './assets/textureAtlases/mainCharTextureAtlas.png',
-            './assets/textureAtlases/mainCharTextureAtlas.json');
         this.load.image('portal', './assets/sprites/smallPortal.png');
         this.load.image('ghost1', './assets/enemies/Ghost1.png');
         this.load.image('ghost2', './assets/enemies/Ghost2.png');
@@ -17,31 +16,46 @@ class Level1 extends Phaser.Scene {
         this.load.image('ghost7', './assets/enemies/Ghost7.png');
         this.load.image('ghost8', './assets/enemies/Ghost8.png');
         this.load.image('target', './assets/sprites/reticle.png');
-        this.load.image('normalWall', './assets/sprites/normWall.png');
-        this.load.image('distortedWall', './assets/sprites/distWall.png');
         this.load.image('playerBullet', './assets/sprites/newBullet.png');
-        this.load.image('bullet', './assets/sprites/bullet.png');
+        this.load.image('bullet', './assets/sprites/copBullet.png');
         this.load.image('health', './assets/sprites/healthSprite.png');
-        this.load.image('closedDoor', './assets/sprites/closedDoor.png');
-        this.load.image('button', './assets/sprites/button.png');
+
+        //texture atlases
+        this.load.atlas('mainCharAtlas', './assets/textureAtlases/mainCharTextureAtlas.png',
+            './assets/textureAtlases/mainCharTextureAtlas.json');
         this.load.atlas('cop1Atlas', './assets/textureAtlases/cop1TextureAtlas.png',
             './assets/textureAtlases/cop1TextureAtlas.json');
         this.load.atlas('cop2Atlas', './assets/textureAtlases/cop2TextureAtlas.png',
             './assets/textureAtlases/cop2TextureAtlas.json');
         this.load.atlas('cop3Atlas', './assets/textureAtlases/cop3TextureAtlas.png',
             './assets/textureAtlases/cop3TextureAtlas.json');
+
+        //animation spritesheets
         this.load.spritesheet('cop1Death', './assets/animations/cop1Fall.png', 
             {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 5});
         this.load.spritesheet('cop2Death', './assets/animations/cop2Fall.png', 
             {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 5});
         this.load.spritesheet('cop3Death', './assets/animations/cop3Fall.png', 
             {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 5});
+
+        //tilemap
+        this.load.image('mapAssetsTilemap', './assets/tilemaps/mapAssetsTilemapExtruded.png');
+        this.load.tilemapTiledJSON('bothWorldsMap', './assets/tilemaps/bothMapsWithObjects.json');
+        
+        //music
+        this.load.audio('normSoundtrack', './assets/sfx/LightWorld.mp3');
+        this.load.audio('distSoundtrack', './assets/sfx/DarkWorld.mp3');
+
+        //sfx
         this.load.audio('sfx_gunshot', './assets/sfx/gunshot03.mp3');
         this.load.audio('sfx_playerHit', './assets/sfx/playerHit03.mp3');
         this.load.audio('sfx_phase', './assets/sfx/transitionMid.mp3');
         this.load.audio('sfx_enemyHit', './assets/sfx/Damage.mp3');
-        this.load.image('mapAssetsTilemap', './assets/tilemaps/mapAssetsTilemapExtruded.png');
-		this.load.tilemapTiledJSON('bothWorldsMap', './assets/tilemaps/bothMapsWithObjects.json');
+        this.load.audio('sfx_wail', './assets/sfx/damnedWail.mp3');
+        this.load.audio('sfx_openGate', './assets/sfx/gateOpen.wav');
+        this.load.audio('sfx_button', './assets/sfx/CoinGet.mp3');
+        this.load.audio('sfx_ghostSigh', './assets/sfx/ghostExhale.mp3');
+        this.load.audio('sfx_tazer', './assets/sfx/copTazer.mp3');
     }
 
 //=====================================================================================================
@@ -89,7 +103,6 @@ class Level1 extends Phaser.Scene {
         //height and width of the world based on the tilemap
         this.width = map.width*16;
         this.height = map.height*16;
-        console.log(map.width + " " + map.height);
 
         //create world bounds
         this.physics.world.setBounds(0, 0, this.width, this.height);
@@ -154,13 +167,6 @@ class Level1 extends Phaser.Scene {
 
         //create a boolean for keeping track of which world the player is in
         this.inNormalWorld = true;
-
-        //sound files as their own object in the hope that i can play them inside of a physics collider
-        this.gunshotSFX = this.sound.add('sfx_gunshot');
-        this.playerHitSFX = this.sound.add('sfx_playerHit');
-        this.phaseSFX = this.sound.add('sfx_phase');
-        this.enemyHitSFX = this.sound.add('sfx_enemyHit');
-        game.sound.volume = .05;
 
 
         //set image/sprite properties
@@ -358,6 +364,32 @@ class Level1 extends Phaser.Scene {
                 this.UICamera.ignore(bullet);
             }
         }, this);
+
+
+
+        //play me some tunes
+        this.musicNormal = this.sound.add('normSoundtrack');
+        this.musicNormal.setLoop(true);
+        this.musicNormal.play();
+        this.musicNormal.setVolume(7);
+        this.musicDist = this.sound.add('distSoundtrack');
+        this.musicDist.setLoop(true);
+        this.musicDist.play();
+        this.musicDist.setVolume(0);
+
+        //sound files as their own objects 
+        this.gunshotSFX = this.sound.add('sfx_gunshot');
+        this.playerHitSFX = this.sound.add('sfx_playerHit').setVolume(8);
+        this.phaseSFX = this.sound.add('sfx_phase');
+        this.enemyHitSFX = this.sound.add('sfx_enemyHit');
+        this.playerHitTazer = this.sound.add('sfx_tazer').setVolume(2);
+        this.ghostWail = this.sound.add('sfx_wail').setVolume(6);
+        this.ghostSigh = this.sound.add('sfx_ghostSigh').setVolume(6);
+        this.gateOpen = this.sound.add('sfx_openGate').setVolume(8);
+        game.sound.volume = .05;
+        this.copDeathSounds = [];
+        this.ghostDeathSounds = [this.ghostSigh, this.ghostWail];
+
     }
 
 //=======================================================================================================
@@ -523,6 +555,8 @@ class Level1 extends Phaser.Scene {
                 this.distortedScenery[i].active = true
                 this.distortedScenery[i].setVisible(true);
             }
+            this.musicNormal.setVolume(0);
+            this.musicDist.setVolume(6);
         }
         else {
             this.inNormalWorld = true;
@@ -549,6 +583,8 @@ class Level1 extends Phaser.Scene {
                 this.distortedScenery[i].active = false
                 this.distortedScenery[i].setVisible(false);
             }
+            this.musicDist.setVolume(0);
+            this.musicNormal.setVolume(6);
         }
         //only respawn the enemies if they are not dead
         for(let i = 0; i < this.distEnemies.length; i++){
@@ -585,6 +621,7 @@ class Level1 extends Phaser.Scene {
             },
             loop: false
         });
+        
         //make sure the bullets dont collide with the non-active walls
         //could place them in the first section when we switch the walls but that seems too cluttered
         // if(this.normalWallToggle.active == true){
@@ -640,6 +677,7 @@ class Level1 extends Phaser.Scene {
                 enemyHit.setActive(false).setVisible(false).destroy();
                 enemyHit.dead = true;
                 this.copDeathAnimation(enemyHit);
+                this.deathSound(enemyHit);
             }
             this.enemyHitSFX.play();
             //destroy bullet
@@ -663,11 +701,7 @@ class Level1 extends Phaser.Scene {
                 this.healthIcon02.setActive(false).setVisible(false);
             else if(this.healthIcon01.active == true)
                 this.healthIcon01.setActive(false).setVisible(false);  
-            if (playerHit.health <=0 ){
-                // this.add.text(playerHit.x, playerHit.y, 'GAME OVER', menuConfig).setOrigin(.5);
-                console.log('GAME OVER');
-            }
-            this.playerHitSFX.play();
+            this.playerHitTazer.play();
             this.player.invincible = true;
             this.playerNoHit = this.time.addEvent({
                 delay: 1500,
@@ -695,10 +729,6 @@ class Level1 extends Phaser.Scene {
                 this.healthIcon02.setActive(false).setVisible(false);
             else if(this.healthIcon01.active == true)
                 this.healthIcon01.setActive(false).setVisible(false);  
-            if (playerHit.health <=0 ){
-                // this.add.text(playerHit.x, playerHit.y, 'GAME OVER', menuConfig).setOrigin(.5);
-                console.log('GAME OVER');
-            }
             this.playerHitSFX.play();
             this.player.invincible = true;
             this.playerNoHit = this.time.addEvent({
@@ -715,9 +745,6 @@ class Level1 extends Phaser.Scene {
     //phyics callback for when any type of bullet hits a wall
     //this should be basically the same as an enemy bullet cosd llision, but the enemy doesnt disapear. 
     wallHitCallback(bulletHit, wallHit) {
-        //console.log(bulletHit + "should be destored");
-        //console.log(wallHit);
-        //console.log(wallHit.layer.visible);
         if(wallHit.visible === true && bulletHit.active === true )
             bulletHit.setActive(false).setVisible(false).destroy();
         
@@ -725,15 +752,11 @@ class Level1 extends Phaser.Scene {
 
     //set button to pressed and destroy the bullet
     buttonHitCallback(bulletHit, buttonHit){
-        console.log("in button hit callback");
-        console.log(buttonHit);
         if(buttonHit.visible === true && bulletHit.active === true){
             if(buttonHit.layer.name == "Button1_Door1"){
-                console.log("was button 1");
                 this.door1Button1 = true;
             }
             else if(buttonHit.layer.name == "Button2_Door1"){
-                console.log("was button 2");
                 this.door1Button2 = true;
             }
             bulletHit.setActive(false).setVisible(false).destroy();
@@ -803,7 +826,6 @@ class Level1 extends Phaser.Scene {
 
     openDoors(door){       
         door.y -= 48;
-        console.log('doors open wide');
     }
 
     playerHUD(){
@@ -956,7 +978,6 @@ class Level1 extends Phaser.Scene {
         let tempAnimKey;
         let tempCopKey;
         let isCop = false;
-        console.log(cop.texture.key);
         if(cop.texture.key == 'cop1Atlas'){
             tempAnimKey = 'cop1Fall';
             tempCopKey = 'cop1Death';
@@ -979,6 +1000,19 @@ class Level1 extends Phaser.Scene {
             death.on('animationcomplete', () => {
                 death.destroy();
             });
+        }
+    }
+
+    deathSound(enemy) {
+        let tempSound;
+        if(enemy.texture.key == 'cop1Atlas' || enemy.texture.key == 'cop2Atlas' || enemy.texture.key == 'cop3Atlas'){
+            tempSound = this.copDeathSounds[Math.floor(Math.random() * this.copDeathSounds.length)];  
+        }
+        else {
+            tempSound = this.ghostDeathSounds[Math.floor(Math.random() * this.ghostDeathSounds.length)];
+        }
+        if(tempSound) {
+            tempSound.play();
         }
     }
 
