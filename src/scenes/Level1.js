@@ -58,7 +58,8 @@ class Level1 extends Phaser.Scene {
 		const normalFountain = map.createStaticLayer('Norm_Fountain', tileset);
         const normalDucks = map.createStaticLayer('Norm_Ducks', tileset);
         var door1 = map.createDynamicLayer('Door1', tileset);
-        
+        const button1Door1 = map.createStaticLayer('Button1_Door1', tileset);
+        const button2Door1 = map.createStaticLayer('Button2_Door1', tileset);
 		const distortedBackground = map.createStaticLayer('Dist_Background', tileset);
 		const distortedGates = map.createStaticLayer('Dist_Gates', tileset);
 		const distortedGraves = map.createStaticLayer('Dist_Graves', tileset);
@@ -68,8 +69,7 @@ class Level1 extends Phaser.Scene {
         const skeletonStatue = map.createStaticLayer('Skeleton_Statue', tileset);
         const groundGhosts = map.createStaticLayer('Ground_Ghost', tileset);
         const reaper = map.createStaticLayer('Reaper', tileset);
-        const button1Door1 = map.createStaticLayer('Button1_Door1', tileset);
-        const button2Door1 = map.createStaticLayer('Button2_Door1', tileset);
+        
         
         this.skelly = skeletonStatue;
 
@@ -120,6 +120,8 @@ class Level1 extends Phaser.Scene {
             this.distortedScenery[i].setActive(false).setVisible(false);
         }
         skeletonStatue.setCollisionByProperty({ collides: true});
+        button1Door1.setCollisionByProperty({ collides: true});
+        button2Door1.setCollisionByProperty({ collides: true});
 
         //create toggles for the physics colliders in both worlds 
         this.normalGatesToggle = this.physics.add.collider(this.player, normalGates);
@@ -127,7 +129,7 @@ class Level1 extends Phaser.Scene {
         this.normalMausoleumToggle = this.physics.add.collider(this.player, normalMausoleum);
         this.normalFountainToggle = this.physics.add.collider(this.player, normalFountain);
         this.door1Toggle = this.physics.add.collider(this.player, door1);
-        this.button1Door1Toggle = this.physics.add.collider(this.player, button1Door1);
+        this.button1Door1Toggle = this.physics.add.collider(this.player, this.b1);
         this.button2Door1Toggle = this.physics.add.collider(this.player, button2Door1);
         this.distortedGatesToggle = this.physics.add.collider(this.player, distortedGates);
         this.distortedGravesToggles = this.physics.add.collider(this.player, distortedGraves);
@@ -337,8 +339,8 @@ class Level1 extends Phaser.Scene {
                     if(!this.inNormalWorld)
                         this.physics.add.collider(bullet, this.distortedObjects[i], this.wallHitCallback, null, this);
                 }
-                this.physics.add.collider(bullet, button1Door1, this.buttonHitCallback, null, this);
-                this.physics.add.collider(bullet, button2Door1, this.buttonHitCallback, null, this);
+                this.physics.add.collider(bullet, this.b1, this.buttonHitCallback, null, this);
+                this.physics.add.collider(bullet, this.b2, this.buttonHitCallback, null, this);
                 this.physics.add.collider(bullet, skeletonStatue, this.wallHitCallback, null, this);
                 //need to add wall colliders here
                 bullet.fire(this.player, this.reticle);
