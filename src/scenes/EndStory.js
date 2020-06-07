@@ -1,6 +1,6 @@
 class EndStory extends Phaser.Scene {
     constructor() {
-        super("storyScene");
+        super("endStoryScene");
     }
 
     preload(){
@@ -26,18 +26,18 @@ class EndStory extends Phaser.Scene {
         }
         console.log(this.parchment.displayHeight + " " + game.config.height);
         this.content = [
-            "You’ve done it! You’ve defeated all of the",
-            "ghosts in your path! Peter congratulates ",
+            "  You have done it! You have defeated all of",
+            " the ghosts in your path! Peter congratulates ",
             "you on a job well done and tells you how ",
             "great you are. ",
             " ",
             "But before you can celebrate, they go on to ",
             "say that that was only the beginning of a ",
             "long journey. Not wanting to drag you along ",
-            "if that’s not what you want, they ask you if ",
-            "you’re up for what’s ahead.",
+            "if that is not what you want, they ask you ",
+            "if you are up for what’s ahead.",
             " ",
-            "You’ve got this."
+            " You have got this."
         ];
 
         this.line = [];
@@ -49,9 +49,9 @@ class EndStory extends Phaser.Scene {
         this.lineDelay = 1000;
         // this.text = this.add.text(this.parchment.x + this.parchment.displayWidth/6, 64, '', 
         // { font: "Arial", fill: "#5c0000", boundsAlignH: "center", boundsAlignV: "middle" });
-        this.text = this.add.bitmapText(game.config.width/2 - this.parchment.displayWidth/3,
-            this.parchment.displayHeight/5, 'arcade', '', 16).setTint(0x5c0000, 0x5c0000, 
-            0x5c0000, 0x5c0000).setOrigin(0, 0).setScale(1, 1);
+        this.text = this.add.bitmapText(game.config.width/2 - this.parchment.displayWidth/2.6,
+            this.parchment.displayHeight/7, 'arcade', '', 16).setTint(0x5c0000, 0x5c0000, 
+            0x5c0000, 0x5c0000).setOrigin(0, 0).setScale(1, 1.3);
         this.text.ySpacing = 10;
             
         console.log(this.text.fontSize +  ' ' + 4*this.parchment.displayWidth/(6*44));

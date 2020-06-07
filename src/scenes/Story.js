@@ -26,39 +26,38 @@ class Story extends Phaser.Scene {
         }
         console.log(this.parchment.displayHeight + " " + game.config.height);
         this.content = [
-            "You are an orphaned child who roams the ", 
-            "streets, scavenging to survive. ",
+            "    You are an orphaned child who roams the ", 
+            "   streets, scavenging to survive. ",
             " ",
-            "While rummaging through some trash, you ", 
-            "stumble upon an unloaded gun with… a ",
-            "peculiar aura. ",
+            "  While rummaging through some trash, you ", 
+            " stumble upon an unloaded gun with… a ",
+            " peculiar aura. ",
             " ",
-            "Upon picking it up, it shakes with an ",
-            "unearthly energy and glows a ",
-            "phosphorescent green. ",
+            " Upon picking it up, it shakes with an ",
+            " unearthly energy and glows a ",
+            " phosphorescent green. ",
             " ",
-            "Before you have time to process what ",
-            "is happening, a small ghost pops out. ",
+            " Before you have time to process what ",
+            " is happening, a small ghost pops out. ",
             " ",
-            "It looks ",
-            "shaken, but when it realizes you can see ",
-            "it, it introduces itself as Peter and ",
-            "asks for your help in keeping their ",
-            "world safe. ",
+            "  It looks shaken, but when it",
+            "  realizes you can see it, it introduces",
+            "   itself as Peter and asks for your",
+            "   help in keeping their world safe.",
             " ",
-            "Not knowing what else to do... ",
-            "you agree. ", 
+            "    Not knowing what else to do... ",
+            "     you agree. ", 
             " ",
-            "Together, you travel between the physical ",
-            "and supernatural world, vanquishing the  ",
-            "ill-spirited specters. Peter teaches you ",
-            "about ghostly bullets and phasing ",
-            "between worlds. ", 
+            "      Together, you travel between the physical ",
+            "      and supernatural world, vanquishing the  ",
+            "      ill-spirited specters. Peter teaches you ",
+            "       about ghostly bullets and phasing ",
+            "       between worlds. ", 
             " ",
-            "There is, however, a small problem. The ", 
-            "police don’t really appreciate a child ",
-            "running around with a gun, so they are ",
-            "going to try to stop you... "
+            "       There is, however, a small problem. The ", 
+            "       police don’t really appreciate a child ",
+            "       running around with a gun, so they are ",
+            "       going to try to stop you... "
 
         ];
 
@@ -71,9 +70,9 @@ class Story extends Phaser.Scene {
         this.lineDelay = 1000;
         // this.text = this.add.text(this.parchment.x + this.parchment.displayWidth/6, 64, '', 
         // { font: "Arial", fill: "#5c0000", boundsAlignH: "center", boundsAlignV: "middle" });
-        this.text = this.add.bitmapText(game.config.width/2 - this.parchment.displayWidth/3,
-            this.parchment.displayHeight/5, 'arcade', '', 16).setTint(0x5c0000, 0x5c0000, 
-            0x5c0000, 0x5c0000).setOrigin(0, 0).setScale(1, 1);
+        this.text = this.add.bitmapText(game.config.width/2 - this.parchment.displayWidth/2.6,
+            this.parchment.displayHeight/7, 'arcade', '', 16).setTint(0x5c0000, 0x5c0000, 
+            0x5c0000, 0x5c0000).setOrigin(0, 0).setScale(1, 1.3);
         this.text.ySpacing = 10;
             
         console.log(this.text.fontSize +  ' ' + 4*this.parchment.displayWidth/(6*44));
