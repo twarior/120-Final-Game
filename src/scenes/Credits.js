@@ -1,12 +1,12 @@
-class Menu extends Phaser.Scene {
+class Credits extends Phaser.Scene {
     constructor() {
-        super("menuScene");
+        super("creditsScene");
     }
 
     preload(){
         //load audio here
         this.load.audio('sfx_select', './assets/sfx/menuSelect.mp3');
-        this.load.image('menu', './assets/backgrounds/phaserMenu.png');
+        this.load.image('credits', './assets/backgrounds/creditMenu.png');
     }
 
     create() {
@@ -26,7 +26,7 @@ class Menu extends Phaser.Scene {
         game.sound.volume = .1;
 
         this.menuScale = 4;
-        this.menu = this.add.image(game.config.width/2, 0, 'menu').setOrigin(0.5,0).setScale(4);
+        this.menu = this.add.image(game.config.width/2, 0, 'credits').setOrigin(0.5,0).setScale(4);
         if((this.menu.displayHeight < game.config.height) || (this.menu.displayWidth < game.config.width)){
             while((this.menu.displayHeight < game.config.height) || (this.menu.displayWidth < game.config.width)){
                 this.menuScale += .01;
@@ -47,13 +47,9 @@ class Menu extends Phaser.Scene {
     
     update() {
         //if the player presses the up arrow the game will start
-        if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
+        if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
             this.sound.play('sfx_select');
-            this.scene.start("storyScene");
-        }
-        else if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
-            this.sound.play('sfx_select');
-            this.scene.start("creditsScene");   
+            this.scene.start("menuScene");
         }
     }
 }

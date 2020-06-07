@@ -4,6 +4,7 @@ class Story extends Phaser.Scene {
     }
 
     preload(){
+        this.load.audio('sfx_select', './assets/sfx/menuSelect.mp3');
         this.load.image('parchment', './assets/backgrounds/Parchment.png');
         this.load.bitmapFont('arcade', './assets/fonts/arcade.png', './assets/fonts/arcade.xml');
     }
@@ -24,7 +25,6 @@ class Story extends Phaser.Scene {
                 this.parchment.setScale(this.parchmentScale, this.parchmentScale);
             }
         }
-        console.log(this.parchment.displayHeight + " " + game.config.height);
         this.content = [
             "    You are an orphaned child who roams the ", 
             "   streets, scavenging to survive. ",
@@ -75,7 +75,6 @@ class Story extends Phaser.Scene {
             0x5c0000, 0x5c0000).setOrigin(0, 0).setScale(1, 1.3);
         this.text.ySpacing = 10;
             
-        console.log(this.text.fontSize +  ' ' + 4*this.parchment.displayWidth/(6*44));
         if(this.text.fontSize > 4*this.parchment.displayWidth/(6*44)){
             while(this.text.fontSize > 4*this.parchment.displayWidth/(6*44)){
                 this.text.setFontSize(this.text.fontSize - 1);
@@ -86,7 +85,6 @@ class Story extends Phaser.Scene {
                 this.text.setFontSize(this.text.fontSize + 1);
             }
         }
-        console.log(this.text.fontSize);
         
         this.nextLine();
         
@@ -98,17 +96,16 @@ class Story extends Phaser.Scene {
     }
 
     update() {
-        //if the player presses the up arrow the game will start
+        //if the player presses space the game will start
         if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
             this.sound.play('sfx_select');
             this.scene.start("Level1Scene");
         }
-        else if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
+        else if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
+            this.sound.play('sfx_select');
             this.scene.start("menuScene");  
         }
-        else if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
-            //this.scene.start("Credits.js"); 
-        }
+
     }
 
     nextLine() {

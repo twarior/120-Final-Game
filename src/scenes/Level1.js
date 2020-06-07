@@ -479,11 +479,9 @@ class Level1 extends Phaser.Scene {
         //puzzles m8
         
         if(this.door1Button1 == true && this.door1Button2 == true && this.opened == false){
-            //console.log('both buttons pressed');
             this.openDoors(this.door1Update);
             this.opened = true;
         }
-        //console.log(this.player.x +" "+ this.player.y);
         this.playerWin();
         this.playerLose();
         this.enemyRotation();
@@ -638,26 +636,6 @@ class Level1 extends Phaser.Scene {
             loop: false
         });
         
-        //make sure the bullets dont collide with the non-active walls
-        //could place them in the first section when we switch the walls but that seems too cluttered
-        // if(this.normalWallToggle.active == true){
-        //         let collider = this.physics.world.colliders.getActive().find(function(i){
-        //             return i.name == 'distortedWallCollider'
-        //         });
-        //         if(collider){
-        //             //console.log('dist wall collider destroyed');
-        //             collider.destroy();
-        //         }
-        // }
-        // else if (this.distortedWallToggle.active == true){
-        //     let collider = this.physics.world.colliders.getActive().find(function(i){
-        //         return i.name == 'normalWallCollider'
-        //     });
-        //     if(collider){
-        //         //console.log('normal wall collider destroyed');
-        //         collider.destroy();
-        //     }
-        // }
     }
 
     spawnHealth(enemyHit){
@@ -684,8 +662,6 @@ class Level1 extends Phaser.Scene {
         //reduce health of enemy
         if (bulletHit.active === true && enemyHit.active === true) {
             enemyHit.health -= 1;
-            //console.log('enemy at: ' + enemyHit.x + ', ' + enemyHit.y + ' has ' + enemyHit.health + 
-                //' remaining');
             enemyHit.setVelocity(0,0);
             //kill enemy if health <= 0
             if(enemyHit.health <= 0) {
@@ -918,7 +894,6 @@ class Level1 extends Phaser.Scene {
     }
 
     enemyRotation() {
-        //console.log(this.enemies[0].rotation);
         for(let i = 0; i < this.enemies.length; i++){
             
             if(this.enemies[i].rotation < 1.0 && this.enemies[i].rotation > -1.0){
@@ -1031,8 +1006,7 @@ class Level1 extends Phaser.Scene {
     deathSound(enemy) {
         let tempSound;
         if(enemy.texture.key == 'cop1Atlas' || enemy.texture.key == 'cop2Atlas' || enemy.texture.key == 'cop3Atlas'){
-            tempSound = this.copDeathSounds[Math.floor(Math.random() * this.copDeathSounds.length)];
-            console.log(Math.floor(Math.random() * this.copDeathSounds.length))  
+            tempSound = this.copDeathSounds[Math.floor(Math.random() * this.copDeathSounds.length)]; 
         }
         else {
             tempSound = this.ghostDeathSounds[Math.floor(Math.random() * this.ghostDeathSounds.length)];

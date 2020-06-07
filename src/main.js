@@ -13,6 +13,10 @@
 //
 //https://phaser.io/examples/v2/text/display-text-word-by-word
 //This was referenced for the openening story sequence to get the words to appear one after the other
+//
+//We used Tiled and Ourcade for the Tilemap and Code Formating 
+//
+//We used Aseprite for the art assets
 
 
 let config = {
@@ -28,7 +32,7 @@ let config = {
             debug: false
         }
     },
-    scene: [Menu, Story, Level1, EndStory, ],
+    scene: [Menu, Story, Level1, EndStory, Credits],
 };
 
 let game = new Phaser.Game(config);
