@@ -52,10 +52,15 @@ class Level1 extends Phaser.Scene {
         this.load.audio('sfx_phase', './assets/sfx/transitionMid.mp3');
         this.load.audio('sfx_enemyHit', './assets/sfx/Damage.mp3');
         this.load.audio('sfx_wail', './assets/sfx/damnedWail.mp3');
-        this.load.audio('sfx_openGate', './assets/sfx/gateOpen.wav');
+        this.load.audio('sfx_openGate', './assets/sfx/gateOpen.mp3');
         this.load.audio('sfx_button', './assets/sfx/CoinGet.mp3');
         this.load.audio('sfx_ghostSigh', './assets/sfx/ghostExhale.mp3');
-        this.load.audio('sfx_tazer', './assets/sfx/copTazer.mp3');
+        this.load.audio('sfx_tazer', './assets/sfx/NewTazer.mp3');
+        this.load.audio('sfx_police1', './assets/sfx/Police1.mp3');
+        this.load.audio('sfx_police2', './assets/sfx/Police2.mp3');
+        this.load.audio('sfx_police3', './assets/sfx/Police3.mp3');
+        this.load.audio('sfx_police4', './assets/sfx/Police4.mp3');
+        this.load.audio('sfx_police5', './assets/sfx/Police5.mp3');
     }
 
 //=====================================================================================================
@@ -195,6 +200,9 @@ class Level1 extends Phaser.Scene {
         for(let i = 0; i < this.normEnemySpawns.length; i++){
             let enemy = this.physics.add.sprite(this.normEnemySpawns[i].x, this.normEnemySpawns[i].y, 
                 this.copSprites[Math.floor(Math.random() * this.copSprites.length)]);
+            for(let j = 0; j < this.normalObjects.length; j++){
+                this.physics.add.collider(enemy, this.normalObjects[j]);
+            }
             this.enemies.push(enemy);
         }
         //enemy properties
@@ -386,8 +394,13 @@ class Level1 extends Phaser.Scene {
         this.ghostWail = this.sound.add('sfx_wail').setVolume(6);
         this.ghostSigh = this.sound.add('sfx_ghostSigh').setVolume(6);
         this.gateOpen = this.sound.add('sfx_openGate').setVolume(8);
+        this.police1 = this.sound.add('sfx_police1').setVolume(7);
+        this.police2 = this.sound.add('sfx_police2').setVolume(7);
+        this.police3 = this.sound.add('sfx_police3').setVolume(7);
+        this.police4 = this.sound.add('sfx_police4').setVolume(7);
+        this.police5 = this.sound.add('sfx_police5').setVolume(7);
         game.sound.volume = .05;
-        this.copDeathSounds = [];
+        this.copDeathSounds = [this.police1, this.police2, this.police3, this.police4, this.police5];
         this.ghostDeathSounds = [this.ghostSigh, this.ghostWail];
 
     }
@@ -1006,7 +1019,8 @@ class Level1 extends Phaser.Scene {
     deathSound(enemy) {
         let tempSound;
         if(enemy.texture.key == 'cop1Atlas' || enemy.texture.key == 'cop2Atlas' || enemy.texture.key == 'cop3Atlas'){
-            tempSound = this.copDeathSounds[Math.floor(Math.random() * this.copDeathSounds.length)];  
+            tempSound = this.copDeathSounds[Math.floor(Math.random() * this.copDeathSounds.length)];
+            console.log(Math.floor(Math.random() * this.copDeathSounds.length))  
         }
         else {
             tempSound = this.ghostDeathSounds[Math.floor(Math.random() * this.ghostDeathSounds.length)];
