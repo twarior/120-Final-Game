@@ -486,7 +486,6 @@ class Level1 extends Phaser.Scene {
         //console.log(this.player.x +" "+ this.player.y);
         this.playerWin();
         this.playerLose();
-        this.restartGame();
         this.enemyRotation();
         this.playerRotation();
         this.rotateGhosts();
@@ -774,6 +773,7 @@ class Level1 extends Phaser.Scene {
                 this.door1Button1 = true;
                 this.button1SFX.play();
                 buttonHit.setAlpha(.5);
+                ///can't tint because its a tilemap layer not a sprite
                 //buttonHit.setTint(0x00ff00, 0x00ff00, 0x00ff00, 0x00ff00);
             }
             else if(buttonHit.layer.name == "Button2_Door1"){
@@ -890,6 +890,11 @@ class Level1 extends Phaser.Scene {
             this.winText = this.add.text(this.player.x, this.player.y, "YOU WIN");
             this.UICamera.ignore(this.winText);
             this.gameOver = true;
+            this.ContinueText = this.add.text(this.player.x - 96, this.player.y + 32, 'Press SPACE to Continue'); 
+            this.UICamera.ignore(this.ContinueText);
+            if(this.moveKeys.space.isDown){
+                this.scene.start("endStoryScene");
+            }
         }    
     }
 
@@ -897,14 +902,11 @@ class Level1 extends Phaser.Scene {
         if(this.player.health <= 0){
             this.player.active = false;
             this.player.destroy();
-            this.add.text(this.player.x, this.player.y, "YOU LOSE");
+            this.loseText = this.add.text(this.player.x, this.player.y, "YOU LOSE");
+            this.UICamera.ignore(this.loseText);
             this.gameOver = true;
-        }
-    }
-
-    restartGame() {
-        if(this.gameOver == true){
-            this.add.text(this.player.x - 96, this.player.y + 32, '⇡ to Restart or ⇣ for Menu'); 
+            this.restartText = this.add.text(this.player.x - 96, this.player.y + 32, '⇡ to Restart or ⇣ for Menu'); 
+            this.UICamera.ignore(this.restartText);
             if (this.arrowKeys.upArrow.isDown){
                 game.settings.gameScore = 0;
                 this.scene.restart(game.settings.gameScore);
