@@ -396,11 +396,11 @@ class Level1 extends Phaser.Scene {
         this.ghostWail = this.sound.add('sfx_wail').setVolume(6);
         this.ghostSigh = this.sound.add('sfx_ghostSigh').setVolume(6);
         this.gateOpen = this.sound.add('sfx_openGate').setVolume(8);
-        this.police1 = this.sound.add('sfx_police1').setVolume(7);
-        this.police2 = this.sound.add('sfx_police2').setVolume(7);
-        this.police3 = this.sound.add('sfx_police3').setVolume(7);
-        this.police4 = this.sound.add('sfx_police4').setVolume(7);
-        this.police5 = this.sound.add('sfx_police5').setVolume(7);
+        this.police1 = this.sound.add('sfx_police1').setVolume(6);
+        this.police2 = this.sound.add('sfx_police2').setVolume(6);
+        this.police3 = this.sound.add('sfx_police3').setVolume(6);
+        this.police4 = this.sound.add('sfx_police4').setVolume(6);
+        this.police5 = this.sound.add('sfx_police5').setVolume(6);
         this.button1SFX = this.sound.add('sfx_button1');
         this.button2SFX = this.sound.add('sfx_button2');
         game.sound.volume = .05;
