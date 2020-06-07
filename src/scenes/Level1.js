@@ -61,6 +61,8 @@ class Level1 extends Phaser.Scene {
         this.load.audio('sfx_police3', './assets/sfx/Police3.mp3');
         this.load.audio('sfx_police4', './assets/sfx/Police4.mp3');
         this.load.audio('sfx_police5', './assets/sfx/Police5.mp3');
+        this.load.audio('sfx_button1', './assets/sfx/buttonSelect1.mp3');
+        this.load.audio('sfx_button2', './assets/sfx/buttonSelect2.mp3');
     }
 
 //=====================================================================================================
@@ -88,8 +90,8 @@ class Level1 extends Phaser.Scene {
         const skeletonStatue = map.createStaticLayer('Skeleton_Statue', tileset);
         const groundGhosts = map.createStaticLayer('Ground_Ghost', tileset);
         const reaper = map.createStaticLayer('Reaper', tileset);
-        const button1Door1 = map.createStaticLayer('Button1_Door1', tileset);
-        const button2Door1 = map.createStaticLayer('Button2_Door1', tileset);
+        const button1Door1 = map.createDynamicLayer('Button1_Door1', tileset);
+        const button2Door1 = map.createDynamicLayer('Button2_Door1', tileset);
         
         
         this.skelly = skeletonStatue;
@@ -399,6 +401,8 @@ class Level1 extends Phaser.Scene {
         this.police3 = this.sound.add('sfx_police3').setVolume(7);
         this.police4 = this.sound.add('sfx_police4').setVolume(7);
         this.police5 = this.sound.add('sfx_police5').setVolume(7);
+        this.button1SFX = this.sound.add('sfx_button1');
+        this.button2SFX = this.sound.add('sfx_button2');
         game.sound.volume = .05;
         this.copDeathSounds = [this.police1, this.police2, this.police3, this.police4, this.police5];
         this.ghostDeathSounds = [this.ghostSigh, this.ghostWail];
@@ -482,7 +486,6 @@ class Level1 extends Phaser.Scene {
         //console.log(this.player.x +" "+ this.player.y);
         this.playerWin();
         this.playerLose();
-        this.restartGame();
         this.enemyRotation();
         this.playerRotation();
         this.rotateGhosts();
@@ -768,9 +771,16 @@ class Level1 extends Phaser.Scene {
         if(buttonHit.visible === true && bulletHit.active === true){
             if(buttonHit.layer.name == "Button1_Door1"){
                 this.door1Button1 = true;
+                this.button1SFX.play();
+                buttonHit.setAlpha(.5);
+                ///can't tint because its a tilemap layer not a sprite
+                //buttonHit.setTint(0x00ff00, 0x00ff00, 0x00ff00, 0x00ff00);
             }
             else if(buttonHit.layer.name == "Button2_Door1"){
                 this.door1Button2 = true;
+                this.button2SFX.play();
+                buttonHit.setAlpha(.5);
+                //buttonHit.setTint(0x00ff00, 0x00ff00, 0x00ff00, 0x00ff00);
             }
             bulletHit.setActive(false).setVisible(false).destroy();
         }
@@ -880,6 +890,11 @@ class Level1 extends Phaser.Scene {
             this.winText = this.add.text(this.player.x, this.player.y, "YOU WIN");
             this.UICamera.ignore(this.winText);
             this.gameOver = true;
+            this.ContinueText = this.add.text(this.player.x - 96, this.player.y + 32, 'Press SPACE to Continue'); 
+            this.UICamera.ignore(this.ContinueText);
+            if(this.moveKeys.space.isDown){
+                this.scene.start("endStoryScene");
+            }
         }    
     }
 
@@ -887,14 +902,11 @@ class Level1 extends Phaser.Scene {
         if(this.player.health <= 0){
             this.player.active = false;
             this.player.destroy();
-            this.add.text(this.player.x, this.player.y, "YOU LOSE");
+            this.loseText = this.add.text(this.player.x, this.player.y, "YOU LOSE");
+            this.UICamera.ignore(this.loseText);
             this.gameOver = true;
-        }
-    }
-
-    restartGame() {
-        if(this.gameOver == true){
-            this.add.text(this.player.x - 96, this.player.y + 32, '⇡ to Restart or ⇣ for Menu'); 
+            this.restartText = this.add.text(this.player.x - 96, this.player.y + 32, '⇡ to Restart or ⇣ for Menu'); 
+            this.UICamera.ignore(this.restartText);
             if (this.arrowKeys.upArrow.isDown){
                 game.settings.gameScore = 0;
                 this.scene.restart(game.settings.gameScore);

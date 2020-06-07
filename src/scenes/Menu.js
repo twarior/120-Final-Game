@@ -61,16 +61,16 @@ class Menu extends Phaser.Scene {
         //if the player presses the up arrow the game will start
         if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
             this.sound.play('sfx_select');
-            this.scene.start("Level1Scene");
+            this.scene.start("storyScene");
         }
         else if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
             //this.scene.start("creditsScene");   
         }
         else if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
-            this.scene.start("storyScene");
+            //this.scene.start("storyScene");
         }
         else if (Phaser.Input.Keyboard.JustDown(keyRIGHT)) {
-            this.scene.start("endStoryScene");
+            //this.scene.start("endStoryScene");
         }
     }
 }

@@ -79,13 +79,6 @@ class EndStory extends Phaser.Scene {
     update() {
         //if the player presses the up arrow the game will start
         if (Phaser.Input.Keyboard.JustDown(keySPACE)) {
-            this.sound.play('sfx_select');
-            this.scene.start("Level1Scene");
-        }
-        else if (Phaser.Input.Keyboard.JustDown(keyDOWN)) {
-            //this.scene.start("Credits.js");   
-        }
-        else if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
             this.scene.start("menuScene");
         }
     }
