@@ -869,6 +869,8 @@ class Level1 extends Phaser.Scene {
             this.ContinueText = this.add.text(this.player.x - 96, this.player.y + 32, 'Press SPACE to Continue'); 
             this.UICamera.ignore(this.ContinueText);
             if(this.moveKeys.space.isDown){
+                this.musicDist.stop();
+                this.musicNormal.stop();
                 this.scene.start("endStoryScene");
             }
         }    
@@ -884,10 +886,14 @@ class Level1 extends Phaser.Scene {
             this.restartText = this.add.text(this.player.x - 96, this.player.y + 32, '⇡ to Restart or ⇣ for Menu'); 
             this.UICamera.ignore(this.restartText);
             if (this.arrowKeys.upArrow.isDown){
+                this.musicDist.stop();
+                this.musicNormal.stop();
                 game.settings.gameScore = 0;
                 this.scene.restart(game.settings.gameScore);
             }
             else if (this.arrowKeys.downArrow.isDown){
+                this.musicDist.stop();
+                this.musicNormal.stop();
                 this.scene.start("menuScene");
             }
         }
